@@ -317,37 +317,59 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Flèche du bas ▼ centrée exactement sur la colonne de 10px de la scrollbar */}
       <div className="flex justify-end pr-0 py-0.5 flex-shrink-0">
-        <div className="w-[10px] flex items-center justify-center">
+        <div className="w-[10px] flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity">
           <svg width="7" height="5" viewBox="0 0 7 5" fill="none">
-            <polygon points="3.5,5 7,0 0,0" fill="#3c3e39" />
+            <polygon points="3.5,5 7,0 0,0" fill="#6f716c" />
           </svg>
         </div>
       </div>
 
-      {/* ── Settings (au bas de la sidebar) ── */}
+      {/* ── Settings (au bas de la sidebar — style macOS permanent avec rotation au hover) ── */}
       <div
-        className="px-2 py-2 flex-shrink-0"
-        style={{ borderTop: '1px solid #282a26' }}
+        className="p-2 flex-shrink-0"
+        style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          backgroundColor: 'rgba(30, 32, 29, 0.95)'
+        }}
       >
         <button
-          className="w-full flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left"
+          type="button"
+          className="w-full flex items-center justify-between px-2.5 rounded-lg transition-all duration-200 text-left select-none cursor-pointer group active:scale-[0.98]"
           style={{
-            height: 36,
-            fontSize: '14px',
-            fontWeight: 400,
-            color: '#dcded9'
+            height: 34,
+            color: '#dcded9',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.2)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#262824'
             e.currentTarget.style.color = '#ffffff'
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.09)'
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.14)'
+            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.25)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
             e.currentTarget.style.color = '#dcded9'
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.07)'
+            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.2)'
           }}
         >
-          <Settings size={16} strokeWidth={1.5} style={{ flexShrink: 0, color: '#dcded9' }} />
-          <span style={{ fontWeight: 400 }}>Settings</span>
+          <div className="flex items-center gap-2.5 truncate">
+            <Settings
+              size={15}
+              strokeWidth={1.8}
+              className="flex-shrink-0 text-[#a8aaa4] group-hover:text-white transition-all duration-500 ease-out group-hover:rotate-90"
+            />
+            <span style={{ fontSize: '13px', fontWeight: 500, letterSpacing: '-0.01em' }}>
+              Settings
+            </span>
+          </div>
+
+          {/* Badge raccourci clavier macOS permanent */}
+          <span className="text-[11px] font-mono text-[#8a8c87] group-hover:text-white px-1.5 py-0.5 rounded bg-white/[0.04] group-hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-150">
+            Ctrl+,
+          </span>
         </button>
       </div>
     </aside>

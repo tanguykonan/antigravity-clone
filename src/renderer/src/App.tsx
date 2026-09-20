@@ -7,9 +7,9 @@ import { ScheduledTasksView } from './components/tasks/ScheduledTasksView'
 import { ConversationHistoryView } from './components/history/ConversationHistoryView'
 import { ChatInput } from './components/chat/ChatInput'
 
-const SIDEBAR_MIN_WIDTH = 240
-const SIDEBAR_MAX_WIDTH = 420
-const SIDEBAR_DEFAULT_WIDTH = 260
+const SIDEBAR_MIN_WIDTH = 270
+const SIDEBAR_MAX_WIDTH = 460
+const SIDEBAR_DEFAULT_WIDTH = 285
 
 const INITIAL_PROJECTS: Project[] = [
   { id: 'desktop-llm', name: 'desktop-llm' },

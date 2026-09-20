@@ -19,7 +19,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full px-8">
+    <div className="flex flex-col items-center justify-end h-full w-full px-8 pb-20">
       <div className="w-full max-w-2xl flex flex-col gap-2">
 
         {/* Project breadcrumb */}

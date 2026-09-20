@@ -13,11 +13,30 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar ultra-discrète */
-::-webkit-scrollbar { width: 4px; }
+/* Scrollbars personnalisées avec thumb bien arrondi */
+::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+::-webkit-scrollbar-thumb {
+  background-color: #484a46;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background-color: #5c5e59; }
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4a4c47;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #636660;
+}
 
 /* Drag region pour la titlebar custom */
 .titlebar-drag { -webkit-app-region: drag; }

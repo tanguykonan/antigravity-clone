@@ -8,32 +8,32 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Palette extraite de la capture Antigravity
+        // Palette exacte extraite de l'interface réelle Antigravity (warm dark)
         bg: {
-          base: '#141414',    // fond principal quasi-noir
-          sidebar: '#1a1a1a', // sidebar légèrement plus claire
-          elevated: '#1e1e1e', // cartes, inputs
-          hover: '#252525',    // état hover
-          active: '#2a2a2a',   // état actif/sélectionné
-          border: '#2a2a2a',   // séparateurs
+          base: '#181a17',      // fond chat/principal
+          sidebar: '#1e201d',   // fond sidebar
+          elevated: '#282a26',  // cartes, inputs
+          hover: '#252723',     // survol
+          active: '#343632',    // pill active
+          border: '#282a26',    // séparateurs et bordures
         },
         text: {
-          primary: '#e8e8e8',  // texte principal
-          secondary: '#888888', // texte secondaire / labels
-          muted: '#555555',    // très discret
-          accent: '#a78bfa',   // violet doux (accent Antigravity)
+          primary: '#eceee9',   // texte principal blanc cassé
+          secondary: '#9e9e9a', // texte de projets et navigation
+          muted: '#7a7c78',     // sous-titres, dates
+          accent: '#a78bfa',    // violet d'accentuation
         },
         accent: {
-          DEFAULT: '#7c6aed',  // violet Antigravity
+          DEFAULT: '#7c6aed',
           hover: '#8b7af5',
-          bg: '#2d2640',       // fond accent très discret
+          bg: '#2d2640',
         }
       },
       fontSize: {
-        '2xs': ['10px', '14px'],
-        'xs': ['11px', '16px'],
-        'sm': ['12px', '18px'],
-        'base': ['13px', '20px'],
+        '2xs': ['11px', '15px'],
+        'xs': ['12px', '16px'],
+        'sm': ['13px', '18px'],
+        'base': ['14px', '20px'],
       }
     }
   },

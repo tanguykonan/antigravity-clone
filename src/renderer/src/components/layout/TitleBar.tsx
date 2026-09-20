@@ -93,7 +93,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
 
   return (
     <div
-      className="titlebar-drag h-9 flex items-center bg-bg-base border-b border-bg-border select-none flex-shrink-0"
+      className="titlebar-drag h-9 flex items-center bg-bg-sidebar border-b border-bg-border select-none flex-shrink-0"
     >
       {/* Menu bar — style macOS (pills arrondies, typographie SF Pro, menu app en gras) */}
       <div

@@ -43,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* ── Mini header : Logo A + Panel icon + Nav arrows ── */}
       <div
         className="flex items-center gap-1 px-2 flex-shrink-0"
-        style={{ height: 38, borderBottom: '1px solid #282a26' }}
+        style={{ height: 38 }}
       >
         {/* Logo A stylisé Antigravity */}
         <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">

@@ -133,18 +133,6 @@ export const TooltipProvider: React.FC = () => {
         >
           {tooltip.content}
         </span>
-
-        {tooltip.shortcut && (
-          <kbd
-            className="px-1.5 py-0.5 rounded text-[10px] font-mono text-[#a8aaa4] tracking-normal"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.08)'
-            }}
-          >
-            {tooltip.shortcut}
-          </kbd>
-        )}
       </div>
     </div>,
     document.body

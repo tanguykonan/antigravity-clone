@@ -225,7 +225,6 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#ff5f56', border: '1px solid rgba(0,0,0,0.2)' }}
               data-tooltip="Fermer"
-              data-tooltip-shortcut="Alt+F4"
               data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -240,7 +239,6 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#ffbd2e', border: '1px solid rgba(0,0,0,0.2)' }}
               data-tooltip="Réduire"
-              data-tooltip-shortcut="Ctrl+M"
               data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity">

@@ -62,7 +62,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={onToggleSidebar}
           className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:bg-white/10 active:scale-95 cursor-pointer"
           data-tooltip="Toggle Sidebar"
-          data-tooltip-shortcut="Ctrl+B"
           data-tooltip-side="bottom"
         >
           <svg width="15" height="13" viewBox="0 0 15 13" fill="none" stroke="currentColor" strokeWidth="1.3">

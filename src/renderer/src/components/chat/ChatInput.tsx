@@ -120,7 +120,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
                       : 'bg-white/10 text-white/30 cursor-not-allowed'
                   }`}
                   data-tooltip="Send message"
-                  data-tooltip-shortcut="Enter"
                   data-tooltip-side="top"
                 >
                   <ArrowRight size={14} strokeWidth={2.2} />

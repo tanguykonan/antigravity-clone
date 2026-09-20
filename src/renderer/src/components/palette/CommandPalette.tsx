@@ -212,7 +212,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             }}
           >
             <span>Commands</span>
-            <ChevronDown size={12} className="text-[#8a8c87]" />
           </button>
 
           {/* Input de recherche */}

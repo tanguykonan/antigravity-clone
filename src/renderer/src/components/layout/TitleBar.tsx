@@ -15,13 +15,13 @@ interface MenuItem {
 
 const MENU: MenuItem[] = [
   {
-    label: 'Antigravity',
+    label: 'Goatravity',
     items: [
-      { label: 'About Antigravity' },
+      { label: 'About Goatravity' },
       { label: '', separator: true },
       { label: 'Check for Updates...' },
       { label: '', separator: true },
-      { label: 'Quit Antigravity', shortcut: 'Ctrl+Q' }
+      { label: 'Quit Goatravity', shortcut: 'Ctrl+Q' }
     ]
   },
   {
@@ -84,7 +84,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
     if (item.separator || item.disabled) return
     // Actions spéciales
     if (item.label === 'Command Palette') onOpenCommandPalette?.()
-    if (item.label === 'Quit Antigravity') electronService.close()
+    if (item.label === 'Quit Goatravity') electronService.close()
     if (item.label === 'Minimize') electronService.minimize()
     if (item.label === 'Maximize') electronService.maximize()
     if (item.label === 'Close') electronService.close()
@@ -101,7 +101,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
         className="titlebar-no-drag flex items-center h-full pl-2.5 gap-0.5 relative z-50"
       >
         {MENU.map((menu) => {
-          const isAppMenu = menu.label === 'Antigravity'
+          const isAppMenu = menu.label === 'Goatravity'
           const isOpen = openMenu === menu.label
           return (
             <div key={menu.label} className="relative flex items-center">

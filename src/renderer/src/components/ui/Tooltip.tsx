@@ -24,6 +24,10 @@ export const TooltipProvider: React.FC = () => {
     align: 'center'
   })
 
+  // ready = false tant que useLayoutEffect n'a pas corrigé la position
+  // Cela évite le "saut" visuel (tooltip qui apparaît décalé puis se redresse)
+  const [ready, setReady] = useState(false)
+
   const tooltipRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -55,6 +59,8 @@ export const TooltipProvider: React.FC = () => {
           y = rect.top + rect.height / 2
         }
 
+        // Marquer comme "pas prêt" avant le prochain rendu pour éviter le saut
+        setReady(false)
         setTooltip({
           visible: true,
           content,
@@ -78,6 +84,7 @@ export const TooltipProvider: React.FC = () => {
       if (!target) return
 
       if (tooltipTimer) clearTimeout(tooltipTimer)
+      setReady(false)
       setTooltip((prev) => ({ ...prev, visible: false }))
 
       if (warmTimer) clearTimeout(warmTimer)
@@ -97,12 +104,15 @@ export const TooltipProvider: React.FC = () => {
     }
   }, [])
 
-  // Auto-clamp : empêche strictement la bulle de dépasser les bords gauche et droit de l'écran
+  // Auto-clamp : corrige la position avant l'affichage pour éviter tout débordement
   useLayoutEffect(() => {
     if (tooltip.visible && tooltipRef.current) {
       const el = tooltipRef.current
+      // Réinitialiser le style inline pour mesurer la position réelle
+      el.style.left = `${tooltip.x}px`
+
       const rect = el.getBoundingClientRect()
-      const margin = 14 // marge de sécurité depuis le bord de la fenêtre
+      const margin = 14
 
       if (rect.right > window.innerWidth - margin) {
         const diff = rect.right - (window.innerWidth - margin)
@@ -111,6 +121,9 @@ export const TooltipProvider: React.FC = () => {
         const diff = margin - rect.left
         el.style.left = `${tooltip.x + diff}px`
       }
+
+      // Position corrigée → on peut maintenant afficher
+      setReady(true)
     }
   }, [tooltip])
 
@@ -121,11 +134,14 @@ export const TooltipProvider: React.FC = () => {
   else if (tooltip.side === 'left') transform = 'translate(-100%, -50%)'
   else if (tooltip.side === 'right') transform = 'translate(0, -50%)'
 
+  // Le tooltip est visible ET sa position a été corrigée par useLayoutEffect
+  const isVisible = tooltip.visible && ready
+
   return createPortal(
     <div
       ref={tooltipRef}
-      className={`fixed z-[9999] pointer-events-none transition-all duration-150 ease-out select-none ${
-        tooltip.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+      className={`fixed z-[9999] pointer-events-none select-none transition-opacity duration-100 ease-out ${
+        isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
         top: tooltip.y,

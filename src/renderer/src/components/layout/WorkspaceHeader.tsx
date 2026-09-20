@@ -1,28 +1,79 @@
 import React from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface WorkspaceHeaderProps {
-  projectName: string
+  projectName?: string
   conversationTitle?: string
+  showNavControls?: boolean
+  onToggleSidebar?: () => void
 }
 
 export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
   projectName,
-  conversationTitle
+  conversationTitle,
+  showNavControls = false,
+  onToggleSidebar
 }) => {
   return (
     <div
       className="flex items-center justify-between px-4 flex-shrink-0 select-none"
       style={{
         height: 38,
-        borderBottom: '1px solid #282a26',
-        backgroundColor: '#181a17'
+        backgroundColor: 'transparent'
       }}
     >
-      {/* Breadcrumb à gauche */}
+      {/* Côté gauche : Si plein écran (sidebar fermée), affiche Logo A + [|] + < + >. Sinon affiche le breadcrumb du projet */}
       <div className="flex items-center gap-2 text-xs truncate max-w-xl">
-        <span style={{ fontSize: '13px', color: '#9e9e9a', fontWeight: 400 }}>
-          {projectName}
-        </span>
+        {showNavControls && (
+          <div className="flex items-center gap-1 mr-2">
+            {/* Logo A */}
+            <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3L21 19H3L12 3Z"
+                  stroke="#e2e4df"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            {/* Toggle sidebar button — pas de fond permanent, effet hover & active au clic */}
+            <button
+              onClick={onToggleSidebar}
+              className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:bg-white/10 active:scale-95 cursor-pointer"
+              title="Toggle Sidebar"
+            >
+              <svg width="15" height="13" viewBox="0 0 15 13" fill="none" stroke="currentColor" strokeWidth="1.3">
+                <rect x="0.65" y="0.65" width="13.7" height="11.7" rx="1.5" />
+                <line x1="4.5" y1="0.65" x2="4.5" y2="12.35" />
+              </svg>
+            </button>
+
+            {/* Back */}
+            <button
+              className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
+              title="Back"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {/* Forward */}
+            <button
+              className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
+              title="Forward"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Breadcrumb projet (inchangé) */}
+        {projectName && (
+          <span style={{ fontSize: '13px', color: '#9e9e9a', fontWeight: 400 }}>
+            {projectName}
+          </span>
+        )}
         {conversationTitle && (
           <>
             <span style={{ color: '#555852', fontSize: '13px' }}>/</span>
@@ -36,7 +87,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         )}
       </div>
 
-      {/* Boutons à droite : 3 points + Right panel toggle */}
+      {/* Boutons à droite STRICTEMENT INTACTS : 3 points + Right panel toggle */}
       <div className="flex items-center gap-1.5 flex-shrink-0">
         {/* Three dots menu */}
         <button

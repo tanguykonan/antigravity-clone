@@ -34,6 +34,7 @@ export const App: React.FC = () => {
   const [activeProjectId, setActiveProjectId] = useState<string | null>('desktop-llm')
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'scheduled-tasks'>('chat')
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const activeProject = INITIAL_PROJECTS.find((p) => p.id === activeProjectId) ?? null
 
@@ -55,45 +56,59 @@ export const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-bg-base text-text-primary overflow-hidden">
-      {/* Title bar — menu natif */}
+      {/* Title bar — STRICTEMENT INTACTE */}
       <TitleBar />
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar avec largeur contrôlée */}
-        <div style={{ width: sidebarWidth, minWidth: SIDEBAR_MIN_WIDTH, maxWidth: SIDEBAR_MAX_WIDTH }} className="flex-shrink-0 flex">
-          <Sidebar
-            projects={INITIAL_PROJECTS}
-            activeProjectId={activeProjectId}
-            activeView={activeView}
-            onSelectProject={handleSelectProject}
-            onNewConversation={handleNewConversation}
-            onSelectView={setActiveView}
-          />
-          <ResizeHandle onResize={handleResize} />
+        {/* Sidebar animée avec glissement fluide (transition width macOS) */}
+        <div
+          className="flex-shrink-0 flex overflow-hidden"
+          style={{
+            width: sidebarOpen ? sidebarWidth : 0,
+            transition: 'width 260ms cubic-bezier(0.25, 1, 0.5, 1)'
+          }}
+        >
+          <div
+            style={{ width: sidebarWidth, minWidth: sidebarWidth }}
+            className="h-full flex flex-col flex-shrink-0 overflow-hidden"
+          >
+            <Sidebar
+              projects={INITIAL_PROJECTS}
+              activeProjectId={activeProjectId}
+              activeView={activeView}
+              onSelectProject={handleSelectProject}
+              onNewConversation={handleNewConversation}
+              onSelectView={setActiveView}
+              onToggleSidebar={() => setSidebarOpen(false)}
+            />
+          </div>
+          {sidebarOpen && <ResizeHandle onResize={handleResize} />}
         </div>
 
-        {/* Main area */}
+        {/* Main area — s'élargit en plein écran avec fluidité */}
         <main className="flex-1 flex flex-col bg-bg-base overflow-hidden">
-          {activeView === 'scheduled-tasks' ? (
-            <ScheduledTasksView />
-          ) : activeView === 'history' ? (
-            <ConversationHistoryView
-              onSelectConversation={(entry) => {
-                setActiveProjectId(entry.projectName)
-                setActiveView('chat')
-              }}
-            />
-          ) : (
-            <>
-              {activeProject && (
-                <WorkspaceHeader projectName={activeProject.name} />
-              )}
-              <div className="flex-1 overflow-hidden">
-                <ChatInput projectName={activeProject?.name ?? 'desktop-llm'} />
-              </div>
-            </>
-          )}
+          {/* Header de travail : affiche le breadcrumb à gauche + toggle droit intact. En plein écran (!sidebarOpen), affiche aussi Logo A + [|] + < + > */}
+          <WorkspaceHeader
+            projectName={activeProject?.name}
+            showNavControls={!sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen(true)}
+          />
+
+          <div className="flex-1 overflow-hidden">
+            {activeView === 'scheduled-tasks' ? (
+              <ScheduledTasksView />
+            ) : activeView === 'history' ? (
+              <ConversationHistoryView
+                onSelectConversation={(entry) => {
+                  setActiveProjectId(entry.projectName)
+                  setActiveView('chat')
+                }}
+              />
+            ) : (
+              <ChatInput projectName={activeProject?.name ?? 'desktop-llm'} />
+            )}
+          </div>
         </main>
       </div>
     </div>

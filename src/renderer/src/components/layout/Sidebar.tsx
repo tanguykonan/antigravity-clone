@@ -19,6 +19,7 @@ interface SidebarProps {
   onSelectProject: (id: string) => void
   onNewConversation: () => void
   onSelectView: (view: 'chat' | 'history' | 'scheduled-tasks') => void
+  onToggleSidebar?: () => void
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -27,7 +28,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeView,
   onSelectProject,
   onNewConversation,
-  onSelectView
+  onSelectView,
+  onToggleSidebar
 }) => {
   return (
     <aside
@@ -55,12 +57,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </svg>
         </div>
 
-        {/* Panel toggle */}
+        {/* Panel toggle — pas de pill permanent, effet hover & active clic */}
         <button
-          className="w-7 h-7 flex items-center justify-center rounded transition-colors"
-          style={{ color: '#7a7c78' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+          onClick={onToggleSidebar}
+          className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:bg-white/10 active:scale-95 cursor-pointer"
           title="Toggle Sidebar"
         >
           <svg width="15" height="13" viewBox="0 0 15 13" fill="none" stroke="currentColor" strokeWidth="1.3">
@@ -71,10 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Back */}
         <button
-          className="w-7 h-7 flex items-center justify-center rounded transition-colors"
-          style={{ color: '#7a7c78' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+          className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
           title="Back"
         >
           <ChevronLeft size={16} />
@@ -82,10 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Forward */}
         <button
-          className="w-7 h-7 flex items-center justify-center rounded transition-colors"
-          style={{ color: '#7a7c78' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+          className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
           title="Forward"
         >
           <ChevronRight size={16} />
@@ -215,7 +209,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* ── Project List avec Scrollbar personnalisée à coins arrondis ── */}
       <div className="sidebar-scrollbar flex-1 overflow-y-auto px-2 space-y-1">
-        {/* Projets de la liste */}
         {projects.map((project) => {
           const isActive = project.id === activeProjectId
           return (
@@ -296,7 +289,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
 
-              {/* Sous-élément de conversation (ex: SmoothTerminal) */}
+              {/* Sous-élément de conversation */}
               {project.lastMessage && (
                 <div
                   className="flex items-center justify-between py-1.5 px-2 my-0.5 rounded-md cursor-pointer transition-all duration-150 hover:bg-white/[0.04] group/sub"

@@ -13,38 +13,30 @@ export const ScheduledTasksView: React.FC = () => {
             Scheduled Tasks
           </h1>
           <button
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-            style={{
-              backgroundColor: '#343632',
-              border: '1px solid #41443e',
-              color: '#eceee9'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3e413a')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#343632')}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white/10 hover:bg-white/15 border border-white/10 text-white shadow-sm transition-all duration-150 cursor-pointer active:scale-95"
           >
             <Plus size={14} strokeWidth={2.5} />
             <span>New</span>
           </button>
         </div>
 
-        {/* Search input bar */}
+        {/* Search input bar (style macOS Spotlight) */}
         <div
-          className="flex items-center gap-2.5 px-3.5 rounded-lg w-full transition-colors"
+          className="flex items-center gap-2.5 px-3.5 rounded-xl w-full transition-all duration-200 backdrop-blur-md focus-within:border-[#007aff]/60 focus-within:shadow-[0_0_15px_rgba(0,122,255,0.2)]"
           style={{
-            height: '38px',
-            backgroundColor: '#242622',
-            border: '1px solid #31332e'
+            height: '40px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
           }}
         >
-          <Search size={15} style={{ color: '#7a7c78', flexShrink: 0 }} />
+          <Search size={15} className="text-[#8a8c87] flex-shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search tasks..."
-            className="w-full bg-transparent outline-none text-sm leading-none"
+            className="w-full bg-transparent outline-none text-sm text-white placeholder-[#7a7c78] leading-none"
             style={{
-              color: '#eceee9',
               fontSize: '13.5px'
             }}
           />

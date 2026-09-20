@@ -221,57 +221,95 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <div key={project.id} className="flex flex-col">
               {/* Ligne principale du projet */}
-              <button
+              <div
                 onClick={() => onSelectProject(project.id)}
-                className="w-full flex items-center gap-2.5 px-3 rounded-lg text-left transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 cursor-pointer group select-none"
                 style={{
                   height: 36,
-                  backgroundColor: isActive ? '#343632' : 'transparent',
-                  color: isActive ? '#f0f0ee' : '#9e9e9a'
+                  backgroundColor: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                  border: isActive ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid transparent',
+                  boxShadow: isActive ? 'inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 6px rgba(0,0,0,0.2)' : 'none',
+                  color: isActive ? '#ffffff' : '#a8aaa4'
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.backgroundColor = '#262824'
-                    e.currentTarget.style.color = '#dcded9'
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)'
+                    e.currentTarget.style.color = '#ffffff'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
                     e.currentTarget.style.backgroundColor = 'transparent'
-                    e.currentTarget.style.color = '#9e9e9a'
+                    e.currentTarget.style.color = '#a8aaa4'
                   }
                 }}
               >
-                <Folder
-                  size={17}
-                  strokeWidth={1.5}
-                  style={{ flexShrink: 0, color: isActive ? '#dcded9' : '#8a8c87' }}
-                />
-                <span
-                  className="truncate flex-1"
-                  style={{ fontSize: '14.5px', fontWeight: isActive ? 500 : 400 }}
-                >
-                  {project.name}
-                </span>
-              </button>
+                <div className="flex items-center gap-2.5 truncate flex-1 min-w-0">
+                  <Folder
+                    size={16}
+                    strokeWidth={1.6}
+                    style={{
+                      flexShrink: 0,
+                      color: isActive ? '#007aff' : '#8a8c87',
+                      transition: 'color 150ms ease'
+                    }}
+                    className="group-hover:text-white"
+                  />
+                  <span
+                    className="truncate"
+                    style={{ fontSize: '14px', fontWeight: isActive ? 500 : 400 }}
+                  >
+                    {project.name}
+                  </span>
+                </div>
+
+                {/* Actions rapides au survol (style macOS : ⋮ et +) */}
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-1">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                    }}
+                    className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors"
+                    title="Project options"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="5" r="1.75" />
+                      <circle cx="12" cy="12" r="1.75" />
+                      <circle cx="12" cy="19" r="1.75" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onNewConversation()
+                    }}
+                    className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors"
+                    title="New chat in project"
+                  >
+                    <Plus size={13} strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
 
               {/* Sous-élément de conversation (ex: SmoothTerminal) */}
               {project.lastMessage && (
                 <div
-                  className="flex items-center justify-between py-1.5 pr-2 cursor-pointer rounded-md transition-colors"
-                  style={{ paddingLeft: '32px', color: '#8a8c87' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
+                  className="flex items-center justify-between py-1.5 px-2 my-0.5 rounded-md cursor-pointer transition-all duration-150 hover:bg-white/[0.04] group/sub"
+                  style={{ marginLeft: '24px', marginRight: '4px', color: '#8a8c87' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
                 >
                   <span
-                    className="truncate flex-1"
-                    style={{ fontSize: '13.5px' }}
+                    className="truncate flex-1 font-normal"
+                    style={{ fontSize: '13px' }}
                   >
                     {project.lastMessage}
                   </span>
                   {project.lastTime && (
                     <span
-                      style={{ fontSize: '12px', color: '#8a8c87', marginLeft: 8, flexShrink: 0 }}
+                      className="px-1.5 py-0.5 rounded bg-white/[0.04] text-[11px] font-mono text-[#7a7c78] group-hover/sub:text-[#a8aaa4] transition-colors ml-2 flex-shrink-0"
                     >
                       {project.lastTime}
                     </span>

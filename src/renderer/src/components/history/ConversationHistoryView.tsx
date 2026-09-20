@@ -90,26 +90,25 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
           </h1>
         </div>
 
-        {/* Barre de recherche + Filtre + 3 points */}
-        <div className="flex items-center gap-2 w-full mb-6">
-          {/* Champ recherche */}
+        {/* Barre de recherche + Filtre + 3 points (style macOS) */}
+        <div className="flex items-center gap-2.5 w-full mb-6">
+          {/* Champ recherche style Spotlight */}
           <div
-            className="flex-1 flex items-center gap-2.5 px-3.5 rounded-lg transition-colors"
+            className="flex-1 flex items-center gap-2.5 px-3.5 rounded-xl transition-all duration-200 backdrop-blur-md focus-within:border-[#007aff]/60 focus-within:shadow-[0_0_15px_rgba(0,122,255,0.2)]"
             style={{
-              height: '38px',
-              backgroundColor: '#242622',
-              border: '1px solid #31332e'
+              height: '40px',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
             }}
           >
-            <Search size={15} style={{ color: '#7a7c78', flexShrink: 0 }} />
+            <Search size={15} className="text-[#8a8c87] flex-shrink-0" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search conversations..."
-              className="w-full bg-transparent outline-none text-sm leading-none"
+              className="w-full bg-transparent outline-none text-sm text-white placeholder-[#7a7c78] leading-none"
               style={{
-                color: '#eceee9',
                 fontSize: '13.5px'
               }}
             />
@@ -117,14 +116,7 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
 
           {/* Bouton Filtre */}
           <button
-            className="w-[38px] h-[38px] flex items-center justify-center rounded-lg transition-colors cursor-pointer"
-            style={{
-              backgroundColor: '#242622',
-              border: '1px solid #31332e',
-              color: '#7a7c78'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+            className="w-[40px] h-[40px] flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
             title="Filter conversations"
           >
             <SlidersHorizontal size={15} />
@@ -132,14 +124,7 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
 
           {/* Bouton 3 points verticaux */}
           <button
-            className="w-[38px] h-[38px] flex items-center justify-center rounded-lg transition-colors cursor-pointer"
-            style={{
-              backgroundColor: '#242622',
-              border: '1px solid #31332e',
-              color: '#7a7c78'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+            className="w-[40px] h-[40px] flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
             title="More options"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -150,22 +135,19 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
           </button>
         </div>
 
-        {/* Liste des conversations */}
-        <div className="flex flex-col divide-y divide-[#222420]">
+        {/* Liste des conversations (cartes style macOS) */}
+        <div className="flex flex-col gap-1">
           {filteredHistory.map((item) => (
             <div
               key={item.id}
               onClick={() => onSelectConversation?.(item)}
-              className="flex flex-col py-3 px-2 rounded-lg transition-colors cursor-pointer"
-              style={{ backgroundColor: 'transparent' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#222420')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              className="flex flex-col py-3 px-3.5 rounded-xl transition-all duration-150 cursor-pointer hover:bg-white/[0.06] hover:shadow-sm border border-transparent hover:border-white/5"
             >
               {/* Ligne 1 : Titre de la conversation + Timestamp */}
               <div className="flex items-center justify-between w-full gap-4">
                 <span
-                  className="truncate flex-1 font-normal"
-                  style={{ fontSize: '14px', color: '#dcded9' }}
+                  className="truncate flex-1 font-normal text-[#dcded9] group-hover:text-white"
+                  style={{ fontSize: '14px' }}
                 >
                   {item.title}
                 </span>
@@ -177,9 +159,12 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
               </div>
 
               {/* Ligne 2 : Icône dossier + Nom du projet */}
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex items-center gap-1.5 mt-1.5">
                 <Folder size={13} strokeWidth={1.5} style={{ color: '#7a7c78', flexShrink: 0 }} />
-                <span style={{ fontSize: '12.5px', color: '#8a8c87' }}>
+                <span
+                  className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/5 text-xs text-[#9a9c97]"
+                  style={{ fontSize: '11.5px' }}
+                >
                   {item.projectName}
                 </span>
               </div>

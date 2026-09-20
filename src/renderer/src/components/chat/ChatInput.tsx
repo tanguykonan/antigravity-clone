@@ -21,27 +21,32 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
   return (
     <div className="flex flex-col items-center justify-center h-full w-full px-8 pb-12">
       <div className="w-full max-w-2xl flex flex-col gap-2.5">
-
-        {/* ── Project dropdown au-dessus de la carte ── */}
-        <div className="flex items-center gap-2 pl-1 cursor-pointer select-none">
-          <Folder size={15} strokeWidth={1.5} style={{ color: '#8a8c87' }} />
-          <span style={{ fontSize: '14px', color: '#a8aaa4', fontWeight: 400 }}>
-            {projectName || 'desktop-llm'}
-          </span>
-          <ChevronDown size={13} style={{ color: '#7a7c78' }} />
+        {/* ── Project dropdown au-dessus de la carte (style macOS pill) ── */}
+        <div className="flex items-center gap-1.5 pl-1 select-none">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5 transition-all cursor-pointer group"
+          >
+            <Folder size={14} strokeWidth={1.6} className="text-[#8a8c87] group-hover:text-[#c5c7c2] transition-colors" />
+            <span style={{ fontSize: '13px', color: '#c5c7c2', fontWeight: 500 }} className="group-hover:text-white transition-colors">
+              {projectName || 'desktop-llm'}
+            </span>
+            <ChevronDown size={12} className="text-[#7a7c78] group-hover:text-[#c5c7c2] transition-colors" />
+          </button>
         </div>
 
-        {/* ── Carte de saisie principale ── */}
+        {/* ── Carte de saisie principale (macOS Frosted Glass & Inner Highlight) ── */}
         <form onSubmit={handleSubmit} className="w-full">
           <div
-            className="rounded-2xl transition-all"
+            className="rounded-2xl transition-all duration-200 backdrop-blur-2xl focus-within:border-[#007aff]/60 focus-within:shadow-[0_20px_50px_-10px_rgba(0,122,255,0.18)]"
             style={{
-              backgroundColor: '#272925',
-              border: '1px solid #32342f'
+              backgroundColor: 'rgba(38, 41, 36, 0.78)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12)'
             }}
           >
             {/* Zone de saisie / Textarea */}
-            <div className="px-4 pt-4 pb-2">
+            <div className="px-5 pt-4 pb-2">
               <textarea
                 ref={textareaRef}
                 value={value}
@@ -58,43 +63,38 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
                 }}
                 placeholder="Ask anything, @ to mention, / for actions"
                 rows={1}
-                className="w-full bg-transparent outline-none resize-none leading-relaxed"
+                className="w-full bg-transparent outline-none resize-none leading-relaxed placeholder-[#7a7c78]"
                 style={{
-                  minHeight: '26px',
+                  minHeight: '28px',
                   maxHeight: '180px',
                   fontSize: '14.5px',
-                  color: '#eceee9'
+                  color: '#ffffff',
+                  fontWeight: 400
                 }}
               />
             </div>
 
             {/* Ligne des contrôles : + | Modèle | Micro | Flèche envoyer */}
-            <div className="flex items-center justify-between px-3.5 pb-2.5">
+            <div className="flex items-center justify-between px-4 pb-2.5">
               {/* Gauche : bouton + et sélecteur de modèle */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-6 h-6 flex items-center justify-center rounded transition-colors cursor-pointer"
-                  style={{ color: '#8a8c87' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#eceee9')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
                   title="Attach file or context"
                 >
-                  <Plus size={16} />
+                  <Plus size={15} strokeWidth={2} />
                 </button>
 
                 {/* Sélecteur de modèle : Gemini 3.8 Flash Medium */}
                 <button
                   type="button"
-                  className="flex items-center gap-1.5 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
-                  style={{ color: '#eceee9' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#30322d')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-all cursor-pointer active:scale-98"
                 >
-                  <span style={{ fontSize: '13.5px', fontWeight: 400, color: '#eceee9' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 500, color: '#f0f0ee' }}>
                     Gemini 3.8 Flash Medium
                   </span>
-                  <ChevronDown size={13} style={{ color: '#8a8c87' }} />
+                  <ChevronDown size={12} className="text-[#8a8c87]" />
                 </button>
               </div>
 
@@ -102,27 +102,24 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer"
-                  style={{ color: '#8a8c87' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#eceee9')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
                   title="Voice input"
                 >
                   <Mic size={15} />
                 </button>
 
-                {/* Bouton rond d'envoi */}
+                {/* Bouton d'envoi circulaire style macOS */}
                 <button
                   type="submit"
                   disabled={!value.trim()}
-                  className="w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer"
-                  style={{
-                    backgroundColor: value.trim() ? '#444741' : '#343632',
-                    color: value.trim() ? '#eceee9' : '#686a65'
-                  }}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                    value.trim()
+                      ? 'bg-[#007aff] hover:bg-[#0071eb] text-white shadow-[0_2px_10px_rgba(0,122,255,0.45)]'
+                      : 'bg-white/10 text-white/30 cursor-not-allowed'
+                  }`}
                   title="Send message"
                 >
-                  <ArrowRight size={14} />
+                  <ArrowRight size={14} strokeWidth={2.2} />
                 </button>
               </div>
             </div>
@@ -131,14 +128,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
             <div className="px-4 pb-3 pt-0.5">
               <button
                 type="button"
-                className="flex items-center gap-1.5 transition-colors cursor-pointer"
-                style={{ color: '#7a7c78' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#a8aaa4')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/10 border border-white/5 text-[#8a8c87] hover:text-white transition-all cursor-pointer"
               >
-                <Monitor size={13} />
-                <span style={{ fontSize: '12.5px' }}>Local</span>
-                <ChevronDown size={12} />
+                <Monitor size={12} />
+                <span style={{ fontSize: '12px', fontWeight: 500 }}>Local</span>
+                <ChevronDown size={11} className="opacity-70" />
               </button>
             </div>
           </div>

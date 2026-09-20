@@ -96,49 +96,94 @@ export const TitleBar: React.FC = () => {
     <div
       className="titlebar-drag h-9 flex items-center bg-bg-base border-b border-bg-border select-none flex-shrink-0"
     >
-      {/* Menu bar — zone non-draggable */}
+      {/* Menu bar — style macOS (pills arrondies, typographie SF Pro, menu app en gras) */}
       <div
         ref={menuRef}
-        className="titlebar-no-drag flex items-center h-full relative z-50"
+        className="titlebar-no-drag flex items-center h-full pl-2.5 gap-0.5 relative z-50"
       >
-        {MENU.map((menu) => (
-          <div key={menu.label} className="relative h-full flex items-center">
-            <button
-              onMouseDown={() => handleMenuClick(menu.label)}
-              onMouseEnter={() => handleMenuEnter(menu.label)}
-              className={`px-3 h-full text-sm transition-colors ${
-                openMenu === menu.label
-                  ? 'bg-bg-hover text-text-primary'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover'
-              }`}
-            >
-              {menu.label}
-            </button>
+        {MENU.map((menu) => {
+          const isAppMenu = menu.label === 'Antigravity'
+          const isOpen = openMenu === menu.label
+          return (
+            <div key={menu.label} className="relative flex items-center">
+              <button
+                onMouseDown={() => handleMenuClick(menu.label)}
+                onMouseEnter={(e) => {
+                  handleMenuEnter(menu.label)
+                  if (!isOpen) {
+                    e.currentTarget.style.backgroundColor = '#292b26'
+                    e.currentTarget.style.color = '#ffffff'
+                  }
+                }}
+                className="px-2.5 py-1 rounded-md transition-colors cursor-pointer select-none"
+                style={{
+                  fontSize: '13px',
+                  fontWeight: isAppMenu ? 600 : 400,
+                  letterSpacing: '-0.01em',
+                  color: isOpen ? '#ffffff' : isAppMenu ? '#f0f0ee' : '#c8cac5',
+                  backgroundColor: isOpen ? '#383a35' : 'transparent'
+                }}
+                onMouseLeave={(e) => {
+                  if (!isOpen) {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = isAppMenu ? '#f0f0ee' : '#c8cac5'
+                  }
+                }}
+              >
+                {menu.label}
+              </button>
 
-            {/* Dropdown */}
-            {openMenu === menu.label && menu.items && (
-              <div className="absolute top-full left-0 mt-0 bg-bg-elevated border border-bg-border rounded-md shadow-2xl py-1 min-w-[200px] z-50">
-                {menu.items.map((item, i) =>
-                  item.separator ? (
-                    <div key={i} className="h-px bg-bg-border my-1 mx-1" />
-                  ) : (
-                    <button
-                      key={i}
-                      onClick={() => handleItemClick(item)}
-                      disabled={item.disabled}
-                      className="w-full flex items-center justify-between px-3 py-1.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors disabled:opacity-40 disabled:cursor-default"
-                    >
-                      <span>{item.label}</span>
-                      {item.shortcut && (
-                        <span className="text-text-muted text-xs ml-8">{item.shortcut}</span>
-                      )}
-                    </button>
-                  )
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+              {/* Dropdown menu style macOS (effet verre dépoli, survol bleu macOS) */}
+              {isOpen && menu.items && (
+                <div
+                  className="absolute top-[calc(100%+3px)] left-0 py-1.5 min-w-[210px] rounded-lg shadow-[0_12px_32px_rgba(0,0,0,0.55)] backdrop-blur-xl z-50"
+                  style={{
+                    backgroundColor: 'rgba(32, 34, 30, 0.96)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)'
+                  }}
+                >
+                  {menu.items.map((item, i) =>
+                    item.separator ? (
+                      <div
+                        key={i}
+                        className="h-[1px] my-1 mx-2"
+                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                      />
+                    ) : (
+                      <button
+                        key={i}
+                        onClick={() => handleItemClick(item)}
+                        disabled={item.disabled}
+                        className="w-[calc(100%-8px)] mx-1 flex items-center justify-between px-3 py-1 text-left rounded-[5px] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default group"
+                        style={{
+                          fontSize: '13px',
+                          color: '#e4e6e1'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#007aff'
+                          e.currentTarget.style.color = '#ffffff'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.color = '#e4e6e1'
+                        }}
+                      >
+                        <span className="truncate">{item.label}</span>
+                        {item.shortcut && (
+                          <span
+                            className="text-xs ml-6 opacity-60 font-mono tracking-tight group-hover:opacity-100"
+                          >
+                            {item.shortcut}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Zone draggable centrale */}

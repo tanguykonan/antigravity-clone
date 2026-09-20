@@ -52,7 +52,11 @@ const MENU: MenuItem[] = [
   }
 ]
 
-export const TitleBar: React.FC = () => {
+interface TitleBarProps {
+  onOpenCommandPalette?: () => void
+}
+
+export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -79,6 +83,7 @@ export const TitleBar: React.FC = () => {
   const handleItemClick = (item: MenuItemDef) => {
     if (item.separator || item.disabled) return
     // Actions spéciales
+    if (item.label === 'Command Palette') onOpenCommandPalette?.()
     if (item.label === 'Quit Antigravity') electronService.close()
     if (item.label === 'Minimize') electronService.minimize()
     if (item.label === 'Maximize') electronService.maximize()

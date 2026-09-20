@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { TitleBar } from './components/layout/TitleBar'
 import { Sidebar, Project } from './components/layout/Sidebar'
 import { ResizeHandle } from './components/layout/ResizeHandle'
@@ -6,6 +6,7 @@ import { WorkspaceHeader } from './components/layout/WorkspaceHeader'
 import { ScheduledTasksView } from './components/tasks/ScheduledTasksView'
 import { ConversationHistoryView } from './components/history/ConversationHistoryView'
 import { ChatInput } from './components/chat/ChatInput'
+import { CommandPalette } from './components/palette/CommandPalette'
 
 const SIDEBAR_MIN_WIDTH = 270
 const SIDEBAR_MAX_WIDTH = 460
@@ -35,6 +36,7 @@ export const App: React.FC = () => {
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'scheduled-tasks'>('chat')
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
   const activeProject = INITIAL_PROJECTS.find((p) => p.id === activeProjectId) ?? null
 
@@ -54,10 +56,22 @@ export const App: React.FC = () => {
     setActiveView('chat')
   }
 
+  // Raccourci global Ctrl+Shift+P / Cmd+Shift+P pour ouvrir la palette de commande
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
+        e.preventDefault()
+        setIsCommandPaletteOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   return (
     <div className="flex flex-col h-screen w-screen bg-bg-base text-text-primary overflow-hidden">
-      {/* Title bar — STRICTEMENT INTACTE */}
-      <TitleBar />
+      {/* Title bar — STRICTEMENT INTACTE avec déclencheur Command Palette */}
+      <TitleBar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
@@ -111,6 +125,14 @@ export const App: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Bulle flottante Command Palette — style macOS Spotlight centré */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+        onNewConversation={handleNewConversation}
+      />
     </div>
   )
 }

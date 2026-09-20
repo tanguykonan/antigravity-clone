@@ -42,7 +42,9 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
             <button
               onClick={onToggleSidebar}
               className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:bg-white/10 active:scale-95 cursor-pointer"
-              title="Toggle Sidebar"
+              data-tooltip="Toggle Sidebar"
+              data-tooltip-shortcut="Ctrl+B"
+              data-tooltip-side="bottom"
             >
               <svg width="15" height="13" viewBox="0 0 15 13" fill="none" stroke="currentColor" strokeWidth="1.3">
                 <rect x="0.65" y="0.65" width="13.7" height="11.7" rx="1.5" />
@@ -53,7 +55,8 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
             {/* Back */}
             <button
               className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
-              title="Back"
+              data-tooltip="Back"
+              data-tooltip-side="bottom"
             >
               <ChevronLeft size={16} />
             </button>
@@ -61,7 +64,8 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
             {/* Forward */}
             <button
               className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
-              title="Forward"
+              data-tooltip="Forward"
+              data-tooltip-side="bottom"
             >
               <ChevronRight size={16} />
             </button>
@@ -92,7 +96,8 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         {/* Three dots menu */}
         <button
           className="w-7 h-7 flex items-center justify-center rounded text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] transition-colors cursor-pointer"
-          title="More options"
+          data-tooltip="More options"
+          data-tooltip-side="bottom"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="1.75" />
@@ -104,7 +109,9 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         {/* Right panel toggle icon */}
         <button
           className="w-7 h-7 flex items-center justify-center rounded text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] transition-colors cursor-pointer"
-          title="Toggle Right Panel"
+          data-tooltip="Toggle Right Panel"
+          data-tooltip-shortcut="Ctrl+Shift+B"
+          data-tooltip-side="bottom"
         >
           <svg width="15" height="13" viewBox="0 0 15 13" fill="none" stroke="currentColor" strokeWidth="1.3">
             <rect x="0.65" y="0.65" width="13.7" height="11.7" rx="1.5" />

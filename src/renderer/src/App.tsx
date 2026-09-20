@@ -7,6 +7,7 @@ import { ScheduledTasksView } from './components/tasks/ScheduledTasksView'
 import { ConversationHistoryView } from './components/history/ConversationHistoryView'
 import { ChatInput } from './components/chat/ChatInput'
 import { CommandPalette } from './components/palette/CommandPalette'
+import { TooltipProvider } from './components/ui/Tooltip'
 
 const SIDEBAR_MIN_WIDTH = 270
 const SIDEBAR_MAX_WIDTH = 460
@@ -133,6 +134,9 @@ export const App: React.FC = () => {
         onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         onNewConversation={handleNewConversation}
       />
+
+      {/* Tooltip macOS global (capsules verre dépoli) */}
+      <TooltipProvider />
     </div>
   )
 }

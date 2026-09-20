@@ -117,7 +117,8 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
           {/* Bouton Filtre */}
           <button
             className="w-[40px] h-[40px] flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-            title="Filter conversations"
+            data-tooltip="Filter conversations"
+            data-tooltip-side="bottom"
           >
             <SlidersHorizontal size={15} />
           </button>
@@ -125,7 +126,8 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
           {/* Bouton 3 points verticaux */}
           <button
             className="w-[40px] h-[40px] flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-            title="More options"
+            data-tooltip="More options"
+            data-tooltip-side="bottom"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="5" r="1.75" />

@@ -81,7 +81,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
                 <button
                   type="button"
                   className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-                  title="Attach file or context"
+                  data-tooltip="Attach file or context"
+                  data-tooltip-side="top"
                 >
                   <Plus size={15} strokeWidth={2} />
                 </button>
@@ -103,7 +104,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
                 <button
                   type="button"
                   className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-                  title="Voice input"
+                  data-tooltip="Voice input"
+                  data-tooltip-side="top"
                 >
                   <Mic size={15} />
                 </button>
@@ -117,7 +119,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
                       ? 'bg-[#007aff] hover:bg-[#0071eb] text-white shadow-[0_2px_10px_rgba(0,122,255,0.45)]'
                       : 'bg-white/10 text-white/30 cursor-not-allowed'
                   }`}
-                  title="Send message"
+                  data-tooltip="Send message"
+                  data-tooltip-shortcut="Enter"
+                  data-tooltip-side="top"
                 >
                   <ArrowRight size={14} strokeWidth={2.2} />
                 </button>

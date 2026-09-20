@@ -201,7 +201,8 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
           }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2c2e29')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#242622')}
-          title="Ouvrir le dépôt GitHub"
+          data-tooltip="Ouvrir le dépôt GitHub"
+          data-tooltip-side="bottom"
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="#e2e4df">
             <path
@@ -223,7 +224,9 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               onClick={() => electronService.close()}
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#ff5f56', border: '1px solid rgba(0,0,0,0.2)' }}
-              title="Fermer"
+              data-tooltip="Fermer"
+              data-tooltip-shortcut="Alt+F4"
+              data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <line x1="1" y1="1" x2="6" y2="6" />
@@ -236,7 +239,9 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               onClick={() => electronService.minimize()}
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#ffbd2e', border: '1px solid rgba(0,0,0,0.2)' }}
-              title="Réduire"
+              data-tooltip="Réduire"
+              data-tooltip-shortcut="Ctrl+M"
+              data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <line x1="1" y1="3.5" x2="6" y2="3.5" />
@@ -248,7 +253,8 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               onClick={() => electronService.maximize()}
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#27c93f', border: '1px solid rgba(0,0,0,0.2)' }}
-              title="Agrandir"
+              data-tooltip="Agrandir"
+              data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <polyline points="4.5,1 6,1 6,2.5" />

@@ -61,7 +61,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={onToggleSidebar}
           className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:bg-white/10 active:scale-95 cursor-pointer"
-          title="Toggle Sidebar"
+          data-tooltip="Toggle Sidebar"
+          data-tooltip-shortcut="Ctrl+B"
+          data-tooltip-side="bottom"
         >
           <svg width="15" height="13" viewBox="0 0 15 13" fill="none" stroke="currentColor" strokeWidth="1.3">
             <rect x="0.65" y="0.65" width="13.7" height="11.7" rx="1.5" />
@@ -72,7 +74,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Back */}
         <button
           className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
-          title="Back"
+          data-tooltip="Back"
+          data-tooltip-side="bottom"
         >
           <ChevronLeft size={16} />
         </button>
@@ -80,7 +83,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Forward */}
         <button
           className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:scale-95 cursor-pointer"
-          title="Forward"
+          data-tooltip="Forward"
+          data-tooltip-side="bottom"
         >
           <ChevronRight size={16} />
         </button>
@@ -185,7 +189,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             style={{ color: '#7a7c78' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
-            title="Filter"
+            data-tooltip="Filter"
+            data-tooltip-side="bottom"
           >
             <SlidersHorizontal size={13} />
           </button>
@@ -194,7 +199,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             style={{ color: '#7a7c78' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
-            title="New Folder"
+            data-tooltip="New Folder"
+            data-tooltip-side="bottom"
           >
             <FolderPlus size={14} />
           </button>
@@ -267,7 +273,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       e.stopPropagation()
                     }}
                     className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors"
-                    title="Project options"
+                    data-tooltip="Project options"
+                    data-tooltip-side="top"
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                       <circle cx="12" cy="5" r="1.75" />
@@ -282,7 +289,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onNewConversation()
                     }}
                     className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors"
-                    title="New chat in project"
+                    data-tooltip="New chat in project"
+                    data-tooltip-side="top"
                   >
                     <Plus size={13} strokeWidth={2} />
                   </button>

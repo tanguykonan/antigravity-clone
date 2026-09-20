@@ -102,7 +102,7 @@ export const App: React.FC = () => {
         </div>
 
         {/* Main area — s'élargit en plein écran avec fluidité */}
-        <main className="flex-1 flex flex-col bg-bg-base overflow-hidden border-t border-bg-border">
+        <main className="flex-1 flex flex-col bg-bg-base overflow-hidden">
           {/* Header de travail : affiche le breadcrumb à gauche + toggle droit intact. En plein écran (!sidebarOpen), affiche aussi Logo A + [|] + < + > */}
           <WorkspaceHeader
             projectName={activeProject?.name}

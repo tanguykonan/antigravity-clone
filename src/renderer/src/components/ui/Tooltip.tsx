@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 interface TooltipState {
   visible: boolean
   content: string
-  shortcut?: string
   x: number
   y: number
   side: 'top' | 'bottom' | 'left' | 'right'
+  align?: 'start' | 'center' | 'end'
 }
 
 let tooltipTimer: NodeJS.Timeout | null = null
@@ -20,7 +20,8 @@ export const TooltipProvider: React.FC = () => {
     content: '',
     x: 0,
     y: 0,
-    side: 'bottom'
+    side: 'bottom',
+    align: 'center'
   })
 
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -33,8 +34,8 @@ export const TooltipProvider: React.FC = () => {
       const content = target.getAttribute('data-tooltip')
       if (!content) return
 
-      const shortcut = target.getAttribute('data-tooltip-shortcut') || undefined
       const side = (target.getAttribute('data-tooltip-side') || 'bottom') as 'top' | 'bottom' | 'left' | 'right'
+      const align = (target.getAttribute('data-tooltip-align') || 'center') as 'start' | 'center' | 'end'
 
       if (tooltipTimer) clearTimeout(tooltipTimer)
       if (warmTimer) clearTimeout(warmTimer)
@@ -57,10 +58,10 @@ export const TooltipProvider: React.FC = () => {
         setTooltip({
           visible: true,
           content,
-          shortcut,
           x,
           y,
-          side
+          side,
+          align
         })
         isWarm = true
       }
@@ -68,7 +69,7 @@ export const TooltipProvider: React.FC = () => {
       if (isWarm) {
         updatePos()
       } else {
-        tooltipTimer = setTimeout(updatePos, 280)
+        tooltipTimer = setTimeout(updatePos, 200)
       }
     }
 
@@ -96,9 +97,25 @@ export const TooltipProvider: React.FC = () => {
     }
   }, [])
 
+  // Auto-clamp : empêche strictement la bulle de dépasser les bords gauche et droit de l'écran
+  useLayoutEffect(() => {
+    if (tooltip.visible && tooltipRef.current) {
+      const el = tooltipRef.current
+      const rect = el.getBoundingClientRect()
+      const margin = 14 // marge de sécurité depuis le bord de la fenêtre
+
+      if (rect.right > window.innerWidth - margin) {
+        const diff = rect.right - (window.innerWidth - margin)
+        el.style.left = `${tooltip.x - diff}px`
+      } else if (rect.left < margin) {
+        const diff = margin - rect.left
+        el.style.left = `${tooltip.x + diff}px`
+      }
+    }
+  }, [tooltip])
+
   if (typeof document === 'undefined') return null
 
-  // Calcul du style de transformation selon la position
   let transform = 'translate(-50%, 0)'
   if (tooltip.side === 'top') transform = 'translate(-50%, -100%)'
   else if (tooltip.side === 'left') transform = 'translate(-100%, -50%)'
@@ -117,7 +134,7 @@ export const TooltipProvider: React.FC = () => {
       }}
     >
       <div
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg backdrop-blur-2xl"
+        className="flex items-center px-2.5 py-1 rounded-lg backdrop-blur-2xl"
         style={{
           backgroundColor: 'rgba(28, 30, 26, 0.94)',
           border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -141,20 +158,20 @@ export const TooltipProvider: React.FC = () => {
 
 interface TooltipProps {
   content: string
-  shortcut?: string
   side?: 'top' | 'bottom' | 'left' | 'right'
+  align?: 'start' | 'center' | 'end'
   children: React.ReactElement
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
   content,
-  shortcut,
   side = 'bottom',
+  align = 'center',
   children
 }) => {
   return React.cloneElement(children, {
     'data-tooltip': content,
-    ...(shortcut ? { 'data-tooltip-shortcut': shortcut } : {}),
-    'data-tooltip-side': side
+    'data-tooltip-side': side,
+    'data-tooltip-align': align
   })
 }

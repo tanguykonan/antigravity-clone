@@ -19,7 +19,7 @@ const MENU: MenuItem[] = [
     items: [
       { label: 'About Antigravity' },
       { label: '', separator: true },
-      { label: 'Preferences...', shortcut: 'Ctrl+,' },
+      { label: 'Check for Updates...' },
       { label: '', separator: true },
       { label: 'Quit Antigravity', shortcut: 'Ctrl+Q' }
     ]
@@ -30,21 +30,15 @@ const MENU: MenuItem[] = [
       { label: 'New Conversation', shortcut: 'Ctrl+N' },
       { label: 'New Project', shortcut: 'Ctrl+Shift+N' },
       { label: '', separator: true },
-      { label: 'Open Folder...', shortcut: 'Ctrl+O' },
-      { label: '', separator: true },
-      { label: 'Close Window', shortcut: 'Ctrl+W' }
+      { label: 'Command Palette', shortcut: 'Ctrl+Shift+P' }
     ]
   },
   {
     label: 'View',
     items: [
-      { label: 'Toggle Sidebar', shortcut: 'Ctrl+B' },
-      { label: '', separator: true },
       { label: 'Zoom In', shortcut: 'Ctrl++' },
       { label: 'Zoom Out', shortcut: 'Ctrl+-' },
-      { label: 'Reset Zoom', shortcut: 'Ctrl+0' },
-      { label: '', separator: true },
-      { label: 'Toggle Full Screen', shortcut: 'F11' }
+      { label: 'Reset Zoom', shortcut: 'Ctrl+0' }
     ]
   },
   {

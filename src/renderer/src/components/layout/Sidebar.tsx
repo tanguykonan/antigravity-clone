@@ -235,12 +235,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   if (!isActive) {
                     e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)'
                     e.currentTarget.style.color = '#ffffff'
+                    const icon = e.currentTarget.querySelector<HTMLElement>('.folder-icon')
+                    if (icon) icon.style.color = '#c5c7c2'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
                     e.currentTarget.style.backgroundColor = 'transparent'
                     e.currentTarget.style.color = '#a8aaa4'
+                    const icon = e.currentTarget.querySelector<HTMLElement>('.folder-icon')
+                    if (icon) icon.style.color = '#8a8c87'
                   }
                 }}
               >
@@ -248,12 +252,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Folder
                     size={16}
                     strokeWidth={1.6}
+                    className="folder-icon flex-shrink-0"
                     style={{
-                      flexShrink: 0,
                       color: isActive ? '#007aff' : '#8a8c87',
                       transition: 'color 150ms ease'
                     }}
-                    className="group-hover:text-white"
                   />
                   <span
                     className="truncate"
@@ -308,9 +311,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {project.lastMessage}
                   </span>
                   {project.lastTime && (
-                    <span
-                      className="px-1.5 py-0.5 rounded bg-white/[0.04] text-[11px] font-mono text-[#7a7c78] group-hover/sub:text-[#a8aaa4] transition-colors ml-2 flex-shrink-0"
-                    >
+                    <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/5 text-[11px] font-mono text-[#7a7c78] group-hover/sub:text-[#a8aaa4] transition-colors ml-2 flex-shrink-0">
                       {project.lastTime}
                     </span>
                   )}

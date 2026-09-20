@@ -15,15 +15,19 @@ export type Project = ProjectItem
 interface SidebarProps {
   projects: ProjectItem[]
   activeProjectId: string | null
+  activeView: 'chat' | 'history' | 'scheduled-tasks'
   onSelectProject: (id: string) => void
   onNewConversation: () => void
+  onSelectView: (view: 'chat' | 'history' | 'scheduled-tasks') => void
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   projects,
   activeProjectId,
+  activeView,
   onSelectProject,
-  onNewConversation
+  onNewConversation,
+  onSelectView
 }) => {
   return (
     <aside
@@ -92,17 +96,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex flex-col pt-2 pb-1 px-2 gap-0.5">
         {/* New Conversation */}
         <button
-          onClick={onNewConversation}
-          className="flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left overflow-hidden"
+          onClick={() => {
+            onNewConversation()
+            onSelectView('chat')
+          }}
+          className="flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left overflow-hidden cursor-pointer"
           style={{
             height: 34,
             fontSize: '13.5px',
             fontWeight: 500,
-            color: '#eceee9',
-            backgroundColor: '#2b2d29'
+            color: activeView === 'chat' && activeProjectId === null ? '#eceee9' : '#b0b2ac',
+            backgroundColor: activeView === 'chat' && activeProjectId === null ? '#2b2d29' : 'transparent'
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#343632')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2b2d29')}
+          onMouseEnter={(e) => {
+            if (!(activeView === 'chat' && activeProjectId === null)) {
+              e.currentTarget.style.backgroundColor = '#242622'
+              e.currentTarget.style.color = '#eceee9'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!(activeView === 'chat' && activeProjectId === null)) {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#b0b2ac'
+            }
+          }}
         >
           <Plus size={15} strokeWidth={2.5} style={{ color: '#eceee9', flexShrink: 0 }} />
           <span className="whitespace-nowrap truncate">New Conversation</span>
@@ -110,35 +127,57 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Conversation History */}
         <button
-          className="flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left overflow-hidden"
-          style={{ height: 32, fontSize: '13.5px', fontWeight: 400, color: '#9a9c97' }}
+          onClick={() => onSelectView('history')}
+          className="flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left overflow-hidden cursor-pointer"
+          style={{
+            height: 32,
+            fontSize: '13.5px',
+            fontWeight: 400,
+            color: activeView === 'history' ? '#eceee9' : '#9a9c97',
+            backgroundColor: activeView === 'history' ? '#2b2d29' : 'transparent'
+          }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#262824'
-            e.currentTarget.style.color = '#dcded9'
+            if (activeView !== 'history') {
+              e.currentTarget.style.backgroundColor = '#242622'
+              e.currentTarget.style.color = '#dcded9'
+            }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-            e.currentTarget.style.color = '#9a9c97'
+            if (activeView !== 'history') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#9a9c97'
+            }
           }}
         >
-          <History size={15} style={{ flexShrink: 0, color: '#8a8c87' }} />
+          <History size={15} style={{ flexShrink: 0, color: activeView === 'history' ? '#eceee9' : '#8a8c87' }} />
           <span className="whitespace-nowrap truncate">Conversation History</span>
         </button>
 
         {/* Scheduled Tasks */}
         <button
-          className="flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left overflow-hidden"
-          style={{ height: 32, fontSize: '13.5px', fontWeight: 400, color: '#9a9c97' }}
+          onClick={() => onSelectView('scheduled-tasks')}
+          className="flex items-center gap-2.5 px-3 rounded-lg transition-colors text-left overflow-hidden cursor-pointer"
+          style={{
+            height: 32,
+            fontSize: '13.5px',
+            fontWeight: 400,
+            color: activeView === 'scheduled-tasks' ? '#eceee9' : '#9a9c97',
+            backgroundColor: activeView === 'scheduled-tasks' ? '#2b2d29' : 'transparent'
+          }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#262824'
-            e.currentTarget.style.color = '#dcded9'
+            if (activeView !== 'scheduled-tasks') {
+              e.currentTarget.style.backgroundColor = '#242622'
+              e.currentTarget.style.color = '#dcded9'
+            }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-            e.currentTarget.style.color = '#9a9c97'
+            if (activeView !== 'scheduled-tasks') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#9a9c97'
+            }
           }}
         >
-          <CalendarClock size={15} style={{ flexShrink: 0, color: '#8a8c87' }} />
+          <CalendarClock size={15} style={{ flexShrink: 0, color: activeView === 'scheduled-tasks' ? '#eceee9' : '#8a8c87' }} />
           <span className="whitespace-nowrap truncate">Scheduled Tasks</span>
         </button>
       </div>
@@ -176,56 +215,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* ── Project List avec Scrollbar personnalisée à coins arrondis ── */}
       <div className="sidebar-scrollbar flex-1 overflow-y-auto px-2 space-y-1">
-        {/* Active conversation pill en haut de liste (exactement comme dans la capture) */}
-        <div
-          className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors"
-          style={{
-            backgroundColor: '#343632',
-            color: '#f0f0ee'
-          }}
-        >
-          <span
-            className="truncate flex-1 font-normal"
-            style={{ fontSize: '13.5px', color: '#f0f0ee' }}
-          >
-            Je veux créer une application...
-          </span>
-          <span
-            style={{ fontSize: '12px', color: '#8a8c87', marginLeft: 8, flexShrink: 0 }}
-          >
-            now
-          </span>
-        </div>
-
         {/* Projets de la liste */}
         {projects.map((project) => {
+          const isActive = project.id === activeProjectId
           return (
             <div key={project.id} className="flex flex-col">
               {/* Ligne principale du projet */}
               <button
                 onClick={() => onSelectProject(project.id)}
-                className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 rounded-lg text-left transition-colors cursor-pointer"
                 style={{
-                  backgroundColor: 'transparent',
-                  color: '#9e9e9a'
+                  height: 36,
+                  backgroundColor: isActive ? '#343632' : 'transparent',
+                  color: isActive ? '#f0f0ee' : '#9e9e9a'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#262824'
-                  e.currentTarget.style.color = '#dcded9'
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = '#262824'
+                    e.currentTarget.style.color = '#dcded9'
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                  e.currentTarget.style.color = '#9e9e9a'
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = '#9e9e9a'
+                  }
                 }}
               >
                 <Folder
-                  size={15}
+                  size={17}
                   strokeWidth={1.5}
-                  style={{ flexShrink: 0, color: '#8a8c87' }}
+                  style={{ flexShrink: 0, color: isActive ? '#dcded9' : '#8a8c87' }}
                 />
                 <span
                   className="truncate flex-1"
-                  style={{ fontSize: '13.5px', fontWeight: 400 }}
+                  style={{ fontSize: '14.5px', fontWeight: isActive ? 500 : 400 }}
                 >
                   {project.name}
                 </span>
@@ -234,14 +258,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Sous-élément de conversation (ex: SmoothTerminal) */}
               {project.lastMessage && (
                 <div
-                  className="flex items-center justify-between py-1 pr-2 cursor-pointer rounded-md transition-colors"
-                  style={{ paddingLeft: '28px', color: '#8a8c87' }}
+                  className="flex items-center justify-between py-1.5 pr-2 cursor-pointer rounded-md transition-colors"
+                  style={{ paddingLeft: '32px', color: '#8a8c87' }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
                 >
                   <span
                     className="truncate flex-1"
-                    style={{ fontSize: '13px' }}
+                    style={{ fontSize: '13.5px' }}
                   >
                     {project.lastMessage}
                   </span>

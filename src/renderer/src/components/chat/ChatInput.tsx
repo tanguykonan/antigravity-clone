@@ -5,7 +5,7 @@ interface ChatInputProps {
   projectName: string | null
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ projectName }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm' }) => {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -19,30 +19,36 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-end h-full w-full px-8 pb-20">
-      <div className="w-full max-w-2xl flex flex-col gap-2">
+    <div className="flex flex-col items-center justify-center h-full w-full px-8 pb-12">
+      <div className="w-full max-w-2xl flex flex-col gap-2.5">
 
-        {/* Project breadcrumb */}
-        {projectName && (
-          <div className="flex items-center gap-1.5 mb-1">
-            <Folder size={12} className="text-text-muted" />
-            <span className="text-sm text-text-secondary">{projectName}</span>
-            <ChevronDown size={12} className="text-text-muted" />
-          </div>
-        )}
+        {/* ── Project dropdown au-dessus de la carte ── */}
+        <div className="flex items-center gap-2 pl-1 cursor-pointer select-none">
+          <Folder size={15} strokeWidth={1.5} style={{ color: '#8a8c87' }} />
+          <span style={{ fontSize: '14px', color: '#a8aaa4', fontWeight: 400 }}>
+            {projectName || 'desktop-llm'}
+          </span>
+          <ChevronDown size={13} style={{ color: '#7a7c78' }} />
+        </div>
 
-        {/* Input card — compact, une seule zone unifiée */}
-        <form onSubmit={handleSubmit}>
-          <div className="bg-bg-elevated border border-bg-border rounded-xl">
-            {/* Textarea */}
-            <div className="px-4 pt-3 pb-1">
+        {/* ── Carte de saisie principale ── */}
+        <form onSubmit={handleSubmit} className="w-full">
+          <div
+            className="rounded-2xl transition-all"
+            style={{
+              backgroundColor: '#272925',
+              border: '1px solid #32342f'
+            }}
+          >
+            {/* Zone de saisie / Textarea */}
+            <div className="px-4 pt-4 pb-2">
               <textarea
                 ref={textareaRef}
                 value={value}
                 onChange={(e) => {
                   setValue(e.target.value)
                   e.target.style.height = 'auto'
-                  e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
+                  e.target.style.height = Math.min(e.target.scrollHeight, 180) + 'px'
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -52,60 +58,88 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName }) => {
                 }}
                 placeholder="Ask anything, @ to mention, / for actions"
                 rows={1}
-                className="w-full bg-transparent text-sm text-text-primary placeholder-text-muted outline-none resize-none leading-6"
-                style={{ minHeight: '24px', maxHeight: '160px' }}
+                className="w-full bg-transparent outline-none resize-none leading-relaxed"
+                style={{
+                  minHeight: '26px',
+                  maxHeight: '180px',
+                  fontSize: '14.5px',
+                  color: '#eceee9'
+                }}
               />
             </div>
 
-            {/* Toolbar: model selector à gauche, actions à droite, Local en bas-gauche */}
-            <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-              {/* Left: + button + model selector + Local */}
-              <div className="flex items-center gap-1">
+            {/* Ligne des contrôles : + | Modèle | Micro | Flèche envoyer */}
+            <div className="flex items-center justify-between px-3.5 pb-2.5">
+              {/* Gauche : bouton + et sélecteur de modèle */}
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-6 h-6 flex items-center justify-center rounded text-text-muted hover:text-text-secondary hover:bg-bg-hover transition-colors"
+                  className="w-6 h-6 flex items-center justify-center rounded transition-colors cursor-pointer"
+                  style={{ color: '#8a8c87' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#eceee9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
+                  title="Attach file or context"
                 >
-                  <Plus size={13} />
+                  <Plus size={16} />
                 </button>
 
+                {/* Sélecteur de modèle : Gemini 3.8 Flash Medium */}
                 <button
                   type="button"
-                  className="flex items-center gap-1.5 px-2 py-0.5 rounded text-xs text-accent-DEFAULT hover:bg-accent-bg transition-colors"
+                  className="flex items-center gap-1.5 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+                  style={{ color: '#eceee9' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#30322d')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-DEFAULT flex-shrink-0" />
-                  <span className="font-medium">Claude Sonnet 4.6</span>
-                  <span className="text-text-muted">(Thinking)</span>
-                  <ChevronDown size={10} className="text-text-muted" />
-                </button>
-
-                <div className="w-px h-3 bg-bg-border mx-1" />
-
-                <button
-                  type="button"
-                  className="flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary transition-colors"
-                >
-                  <Monitor size={11} />
-                  <span>Local</span>
-                  <ChevronDown size={10} />
+                  <span style={{ fontSize: '13.5px', fontWeight: 400, color: '#eceee9' }}>
+                    Gemini 3.8 Flash Medium
+                  </span>
+                  <ChevronDown size={13} style={{ color: '#8a8c87' }} />
                 </button>
               </div>
 
-              {/* Right: mic + send */}
-              <div className="flex items-center gap-1">
+              {/* Droite : icône micro et bouton rond envoyer */}
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-6 h-6 flex items-center justify-center rounded text-text-muted hover:text-text-secondary hover:bg-bg-hover transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer"
+                  style={{ color: '#8a8c87' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#eceee9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
+                  title="Voice input"
                 >
-                  <Mic size={13} />
+                  <Mic size={15} />
                 </button>
+
+                {/* Bouton rond d'envoi */}
                 <button
                   type="submit"
                   disabled={!value.trim()}
-                  className="w-6 h-6 flex items-center justify-center rounded bg-bg-hover text-text-secondary hover:text-text-primary disabled:opacity-30 transition-colors"
+                  className="w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: value.trim() ? '#444741' : '#343632',
+                    color: value.trim() ? '#eceee9' : '#686a65'
+                  }}
+                  title="Send message"
                 >
-                  <ArrowRight size={13} />
+                  <ArrowRight size={14} />
                 </button>
               </div>
+            </div>
+
+            {/* Ligne inférieure : Local dropdown */}
+            <div className="px-4 pb-3 pt-0.5">
+              <button
+                type="button"
+                className="flex items-center gap-1.5 transition-colors cursor-pointer"
+                style={{ color: '#7a7c78' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#a8aaa4')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
+              >
+                <Monitor size={13} />
+                <span style={{ fontSize: '12.5px' }}>Local</span>
+                <ChevronDown size={12} />
+              </button>
             </div>
           </div>
         </form>

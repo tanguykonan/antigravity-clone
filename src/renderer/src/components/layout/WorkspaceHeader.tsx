@@ -7,7 +7,7 @@ interface WorkspaceHeaderProps {
 
 export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
   projectName,
-  conversationTitle = "Je veux créer une application desktop inspirée de l'interface d'Antigr..."
+  conversationTitle
 }) => {
   return (
     <div
@@ -23,13 +23,17 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         <span style={{ fontSize: '13px', color: '#9e9e9a', fontWeight: 400 }}>
           {projectName}
         </span>
-        <span style={{ color: '#555852', fontSize: '13px' }}>/</span>
-        <span
-          className="truncate"
-          style={{ fontSize: '13px', color: '#8a8c87', fontWeight: 400 }}
-        >
-          {conversationTitle}
-        </span>
+        {conversationTitle && (
+          <>
+            <span style={{ color: '#555852', fontSize: '13px' }}>/</span>
+            <span
+              className="truncate"
+              style={{ fontSize: '13px', color: '#8a8c87', fontWeight: 400 }}
+            >
+              {conversationTitle}
+            </span>
+          </>
+        )}
       </div>
 
       {/* Boutons à droite : 3 points + Right panel toggle */}

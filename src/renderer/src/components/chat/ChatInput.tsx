@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react'
 import { Plus, ChevronDown, Mic, ArrowRight, Folder, Monitor } from 'lucide-react'
 import { Project } from '../layout/Sidebar'
 import { ProjectSelectorDropdown } from './ProjectSelectorDropdown'
+import { ModelSelectorDropdown } from './ModelSelectorDropdown'
+import { ProviderModelTier } from '../../services/llm/types'
+import { llmManager } from '../../services/llm/LLMManager'
 
 interface ChatInputProps {
   projectName: string | null
@@ -10,6 +13,8 @@ interface ChatInputProps {
   onSelectProject?: (id: string) => void
   onCreateProject?: () => void
   hasActiveConversation?: boolean
+  selectedModelId?: string
+  onSelectModel?: (id: string) => void
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -18,11 +23,28 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   selectedProjectId = 'desktop-llm',
   onSelectProject = () => {},
   onCreateProject,
-  hasActiveConversation = false
+  hasActiveConversation = false,
+  selectedModelId: externalModelId,
+  onSelectModel: externalOnSelectModel
 }) => {
   const [value, setValue] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [internalModelId, setInternalModelId] = useState('claude-sonnet-medium')
+  const [selectedModel, setSelectedModel] = useState<ProviderModelTier | null>(
+    () => llmManager.getActiveProvider().models.find((m) => m.id === 'claude-sonnet-medium') || llmManager.getActiveProvider().models[0]
+  )
+  const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const modelButtonRef = useRef<HTMLButtonElement>(null)
+
+  const selectedModelId = externalModelId ?? internalModelId
+  const handleSelectModel = (id: string, model: ProviderModelTier) => {
+    setInternalModelId(id)
+    setSelectedModel(model)
+    llmManager.setActiveProvider(model.providerId)
+    llmManager.setActiveTierId(model.id)
+    externalOnSelectModel?.(id)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -131,16 +153,40 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   <Plus size={15} strokeWidth={2} />
                 </button>
 
-                {/* Sélecteur de modèle : Gemini 3.8 Flash Medium */}
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-all cursor-pointer active:scale-98"
-                >
-                  <span style={{ fontSize: '13px', fontWeight: 500, color: '#f0f0ee' }}>
-                    Gemini 3.8 Flash Medium
-                  </span>
-                  <ChevronDown size={12} className="text-[#8a8c87]" />
-                </button>
+                {/* Sélecteur de modèle avec popover intelligent */}
+                <div className="relative">
+                  <button
+                    ref={modelButtonRef}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsModelMenuOpen((prev) => !prev)
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/5 transition-all cursor-pointer active:scale-98 ${
+                      isModelMenuOpen
+                        ? 'bg-white/10 text-white shadow-sm'
+                        : 'bg-white/5 hover:bg-white/10 text-[#f0f0ee]'
+                    }`}
+                  >
+                    <span style={{ fontSize: '13px', fontWeight: 500 }}>
+                      {selectedModel ? selectedModel.name : 'Claude 3.7 Sonnet (Thinking)'}
+                    </span>
+                    <ChevronDown
+                      size={12}
+                      className={`text-[#8a8c87] transition-transform duration-150 ${
+                        isModelMenuOpen ? 'rotate-180 text-white' : ''
+                      }`}
+                    />
+                  </button>
+
+                  <ModelSelectorDropdown
+                    isOpen={isModelMenuOpen}
+                    onClose={() => setIsModelMenuOpen(false)}
+                    anchorRef={modelButtonRef}
+                    selectedModelId={selectedModelId}
+                    onSelectModel={handleSelectModel}
+                  />
+                </div>
               </div>
 
               {/* Droite : icône micro et bouton rond envoyer */}

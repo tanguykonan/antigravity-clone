@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react'
 import { Plus, History, CalendarClock, Folder, Settings, FolderPlus, ChevronLeft, ChevronRight } from 'lucide-react'
 import appLogo from '../../assets/logo.png'
 import { ProjectsFilterMenu } from './ProjectsFilterMenu'
+import { ProjectOptionsMenu } from './ProjectOptionsMenu'
 
 export interface ProjectItem {
   id: string
@@ -34,7 +35,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleSidebar
 }) => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
+  const [openProjectOptionsId, setOpenProjectOptionsId] = useState<string | null>(null)
   const filterButtonRef = useRef<HTMLButtonElement>(null)
+  const projectButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
 
   return (
     <aside
@@ -272,29 +275,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {/* Actions rapides au survol (style macOS : ⋮ et +) */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-1">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                    }}
-                    className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors"
-                    data-tooltip="Project options"
-                    data-tooltip-side="top"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="12" cy="5" r="1.75" />
-                      <circle cx="12" cy="12" r="1.75" />
-                      <circle cx="12" cy="19" r="1.75" />
-                    </svg>
-                  </button>
+                <div
+                  className={`flex items-center gap-1 transition-opacity flex-shrink-0 ml-1 ${
+                    openProjectOptionsId === project.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}
+                >
+                  <div className="relative">
+                    <button
+                      ref={(el) => {
+                        projectButtonRefs.current[project.id] = el
+                      }}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setOpenProjectOptionsId((prev) => (prev === project.id ? null : project.id))
+                      }}
+                      className={`w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 transition-colors ${
+                        openProjectOptionsId === project.id
+                          ? 'bg-white/10 text-white'
+                          : 'text-[#8a8c87] hover:text-white'
+                      }`}
+                      data-tooltip={openProjectOptionsId === project.id ? undefined : 'Project options'}
+                      data-tooltip-side="top"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="1.75" />
+                        <circle cx="12" cy="12" r="1.75" />
+                        <circle cx="12" cy="19" r="1.75" />
+                      </svg>
+                    </button>
+                    <ProjectOptionsMenu
+                      isOpen={openProjectOptionsId === project.id}
+                      onClose={() => setOpenProjectOptionsId(null)}
+                      projectName={project.name}
+                      anchorRef={{ current: projectButtonRefs.current[project.id] ?? null }}
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
                       onNewConversation()
                     }}
-                    className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors"
+                    className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors cursor-pointer"
                     data-tooltip="New chat in project"
                     data-tooltip-side="top"
                   >

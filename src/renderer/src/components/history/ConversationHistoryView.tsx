@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { Search, SlidersHorizontal, Folder } from 'lucide-react'
+import { HistoryFilterMenu } from './HistoryFilterMenu'
+import { HistoryMoreOptionsMenu } from './HistoryMoreOptionsMenu'
 
 export interface HistoryEntry {
   id: string
@@ -73,6 +75,8 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
   onSelectConversation
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false)
 
   const filteredHistory = DEFAULT_HISTORY.filter(
     (item) =>
@@ -114,27 +118,57 @@ export const ConversationHistoryView: React.FC<ConversationHistoryViewProps> = (
             />
           </div>
 
-          {/* Bouton Filtre */}
-          <button
-            className="w-[40px] h-[40px] flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-            data-tooltip="Filter conversations"
-            data-tooltip-side="bottom"
-          >
-            <SlidersHorizontal size={15} />
-          </button>
+          {/* Bouton Filtre avec bulle popover */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setIsFilterOpen((prev) => !prev)
+                setIsMoreOptionsOpen(false)
+              }}
+              className={`w-[40px] h-[40px] flex items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                isFilterOpen
+                  ? 'bg-white/10 border-white/20 text-white'
+                  : 'bg-white/5 hover:bg-white/10 border-white/10 text-[#8a8c87] hover:text-white'
+              }`}
+              data-tooltip={isFilterOpen ? undefined : 'Filter conversations'}
+              data-tooltip-side="bottom"
+            >
+              <SlidersHorizontal size={15} />
+            </button>
 
-          {/* Bouton 3 points verticaux */}
-          <button
-            className="w-[40px] h-[40px] flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-            data-tooltip="More options"
-            data-tooltip-side="bottom"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="1.75" />
-              <circle cx="12" cy="12" r="1.75" />
-              <circle cx="12" cy="19" r="1.75" />
-            </svg>
-          </button>
+            <HistoryFilterMenu
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+            />
+          </div>
+
+          {/* Bouton 3 points verticaux avec bulle Mark as Read */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setIsMoreOptionsOpen((prev) => !prev)
+                setIsFilterOpen(false)
+              }}
+              className={`w-[40px] h-[40px] flex items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                isMoreOptionsOpen
+                  ? 'bg-white/10 border-white/20 text-white'
+                  : 'bg-white/5 hover:bg-white/10 border-white/10 text-[#8a8c87] hover:text-white'
+              }`}
+              data-tooltip={isMoreOptionsOpen ? undefined : 'More options'}
+              data-tooltip-side="bottom"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="1.75" />
+                <circle cx="12" cy="12" r="1.75" />
+                <circle cx="12" cy="19" r="1.75" />
+              </svg>
+            </button>
+
+            <HistoryMoreOptionsMenu
+              isOpen={isMoreOptionsOpen}
+              onClose={() => setIsMoreOptionsOpen(false)}
+            />
+          </div>
         </div>
 
         {/* Liste des conversations (cartes style macOS) */}

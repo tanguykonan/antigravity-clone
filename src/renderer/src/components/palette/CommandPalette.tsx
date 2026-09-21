@@ -6,7 +6,8 @@ import {
   Command,
   MessageSquare,
   Download,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react'
 
 export interface CommandItemDef {
@@ -22,13 +23,15 @@ interface CommandPaletteProps {
   onClose: () => void
   onToggleSidebar?: () => void
   onNewConversation?: () => void
+  onOpenSettings?: () => void
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
   isOpen,
   onClose,
   onToggleSidebar,
-  onNewConversation
+  onNewConversation,
+  onOpenSettings
 }) => {
   const [search, setSearch] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -37,6 +40,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   // Liste des commandes inspirée d'Antigravity / VS Code
   const commands: CommandItemDef[] = [
+    {
+      id: 'open-settings',
+      label: 'Preferences: Open Settings',
+      shortcut: 'Ctrl+,',
+      icon: <Settings size={15} className="text-[#8a8c87]" />,
+      action: () => {
+        onClose()
+        onOpenSettings?.()
+      }
+    },
     {
       id: 'collapse-folders',
       label: 'Collapse All Folders',

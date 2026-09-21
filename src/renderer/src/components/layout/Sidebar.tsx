@@ -35,6 +35,7 @@ interface SidebarProps {
   onReorderProjects?: (projects: ProjectItem[]) => void
   onSelectView: (view: 'chat' | 'history' | 'scheduled-tasks') => void
   onToggleSidebar?: () => void
+  onOpenSettings?: () => void
 }
 
 interface DragState {
@@ -55,7 +56,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onDeleteConversation,
   onReorderProjects,
   onSelectView,
-  onToggleSidebar
+  onToggleSidebar,
+  onOpenSettings
 }) => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [openProjectOptionsId, setOpenProjectOptionsId] = useState<string | null>(null)
@@ -667,6 +669,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         <button
           type="button"
+          onClick={onOpenSettings}
           className="w-full flex items-center justify-between px-2.5 rounded-lg transition-all duration-200 text-left select-none cursor-pointer group active:scale-[0.98]"
           style={{
             height: 34,

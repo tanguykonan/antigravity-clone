@@ -9,6 +9,7 @@ import { ChatInput } from './components/chat/ChatInput'
 import { CommandPalette } from './components/palette/CommandPalette'
 import { TooltipProvider } from './components/ui/Tooltip'
 import { OnboardingView } from './components/auth/OnboardingView'
+import { SettingsModal } from './components/settings/SettingsModal'
 
 const SIDEBAR_MIN_WIDTH = 270
 const SIDEBAR_MAX_WIDTH = 460
@@ -60,6 +61,7 @@ export const App: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) ?? null : null
   const lastSelectedProject = projects.find((p) => p.id === lastSelectedProjectId) ?? projects[0]
@@ -157,12 +159,15 @@ export const App: React.FC = () => {
     }
   }
 
-  // Raccourci global Ctrl+Shift+P / Cmd+Shift+P pour ouvrir la palette de commande
+  // Raccourcis globaux Ctrl+Shift+P (Command Palette) et Ctrl+, (Settings)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
         e.preventDefault()
         setIsCommandPaletteOpen((prev) => !prev)
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === ',' || e.key === '<')) {
+        e.preventDefault()
+        setIsSettingsOpen((prev) => !prev)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -219,6 +224,7 @@ export const App: React.FC = () => {
               onReorderProjects={setProjects}
               onSelectView={setActiveView}
               onToggleSidebar={() => setSidebarOpen(false)}
+              onOpenSettings={() => setIsSettingsOpen(true)}
             />
           </div>
           {sidebarOpen && <ResizeHandle onResize={handleResize} />}
@@ -277,6 +283,18 @@ export const App: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         onNewConversation={handleNewConversation}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
+
+      {/* Modal Settings complet fidèle au design */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        projects={projects}
+        onSignOut={() => {
+          localStorage.removeItem('desktop_llm_authenticated')
+          setIsAuthenticated(false)
+        }}
       />
 
       {/* Tooltip macOS global (capsules verre dépoli) */}

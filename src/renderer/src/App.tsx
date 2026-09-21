@@ -214,7 +214,7 @@ export const App: React.FC = () => {
 
           <div className="flex-1 overflow-hidden">
             {activeView === 'scheduled-tasks' ? (
-              <ScheduledTasksView />
+              <ScheduledTasksView projects={projects} />
             ) : activeView === 'history' ? (
               <ConversationHistoryView
                 onSelectConversation={(entry) => {

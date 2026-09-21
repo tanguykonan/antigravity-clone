@@ -1003,7 +1003,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                   {/* Description Textarea */}
                   <textarea
-                    rows={4}
+                    rows={5}
                     value={feedbackText}
                     onChange={(e) => setFeedbackText(e.target.value)}
                     placeholder={
@@ -1017,21 +1017,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         ? 'Describe your remote control issue...'
                         : 'Describe your general feedback...'
                     }
-                    className="w-full bg-[#181a16] border border-[#282a26] rounded-xl p-3 text-[13px] text-white placeholder-[#585a54] outline-none focus:border-[#007aff]/60 transition-colors resize-none custom-scrollbar"
+                    className="w-full bg-[#181a16] border border-[#282a26] rounded-xl p-3.5 text-[13px] text-white placeholder-[#585a54] outline-none focus:border-[#007aff]/60 transition-colors resize-none custom-scrollbar"
                   />
+                  {feedbackText.trim().length > 0 && feedbackText.trim().length < 20 && (
+                    <div className="text-[11px] text-[#7a7c78] mt-1 px-1">
+                      {20 - feedbackText.trim().length} more characters needed
+                    </div>
+                  )}
                 </div>
 
-                {/* Steps to Reproduce Section */}
-                <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Steps to Reproduce</h3>
-                  <textarea
-                    rows={4}
-                    value={feedbackSteps}
-                    onChange={(e) => setFeedbackSteps(e.target.value)}
-                    placeholder="Please list the steps to reproduce the issue"
-                    className="w-full bg-[#181a16] border border-[#282a26] rounded-xl p-3 text-[13px] text-white placeholder-[#585a54] outline-none focus:border-[#007aff]/60 transition-colors resize-none custom-scrollbar"
-                  />
-                </div>
+                {/* Steps to Reproduce Section — Visible ONLY for Bug Report (Required 20 min) */}
+                {feedbackCategory === 'Bug Report' && (
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-2">Steps to Reproduce</h3>
+                    <textarea
+                      rows={5}
+                      value={feedbackSteps}
+                      onChange={(e) => setFeedbackSteps(e.target.value)}
+                      placeholder="Please list the steps to reproduce the issue"
+                      className="w-full bg-[#181a16] border border-[#282a26] rounded-xl p-3.5 text-[13px] text-white placeholder-[#585a54] outline-none focus:border-[#007aff]/60 transition-colors resize-none custom-scrollbar"
+                    />
+                    {feedbackSteps.trim().length > 0 && feedbackSteps.trim().length < 20 && (
+                      <div className="text-[11px] text-[#7a7c78] mt-1 px-1">
+                        {20 - feedbackSteps.trim().length} more characters needed
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Attach screenshot */}
                 <div className="pt-1">
@@ -1092,28 +1104,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                 {/* Submit Button */}
                 <div className="flex justify-end pt-3">
-                  <button
-                    type="button"
-                    disabled={(!feedbackText.trim() && !feedbackSteps.trim()) || feedbackSent}
-                    onClick={() => {
-                      if (!feedbackText.trim() && !feedbackSteps.trim()) return
-                      setFeedbackSent(true)
-                      setTimeout(() => {
-                        setFeedbackText('')
-                        setFeedbackSteps('')
-                        setScreenshotName(null)
-                        setFeedbackSent(false)
-                      }, 2500)
-                    }}
-                    className={`px-5 py-2 rounded-xl text-white text-[13px] font-medium transition-all cursor-pointer shadow-md active:scale-95 flex items-center gap-1.5 ${
-                      feedbackSent
-                        ? 'bg-[#10b981] shadow-emerald-500/20'
-                        : 'bg-[#007aff] hover:bg-[#0071eb] shadow-blue-500/20 disabled:opacity-30 disabled:cursor-not-allowed'
-                    }`}
-                  >
-                    {feedbackSent && <Check size={14} strokeWidth={2.5} />}
-                    <span>{feedbackSent ? 'Feedback Sent' : 'Submit Feedback'}</span>
-                  </button>
+                  {(() => {
+                    const isDescriptionValid = feedbackText.trim().length >= 20
+                    const isStepsValid = feedbackSteps.trim().length >= 20
+                    const isFormValid =
+                      feedbackCategory === 'Bug Report'
+                        ? isDescriptionValid && isStepsValid
+                        : isDescriptionValid
+
+                    return (
+                      <button
+                        type="button"
+                        disabled={!isFormValid || feedbackSent}
+                        onClick={() => {
+                          if (!isFormValid) return
+                          setFeedbackSent(true)
+                          setTimeout(() => {
+                            setFeedbackText('')
+                            setFeedbackSteps('')
+                            setScreenshotName(null)
+                            setFeedbackSent(false)
+                          }, 2500)
+                        }}
+                        className={`px-5 py-2 rounded-xl text-white text-[13px] font-medium transition-all shadow-md active:scale-95 flex items-center gap-1.5 ${
+                          feedbackSent
+                            ? 'bg-[#10b981] shadow-emerald-500/20'
+                            : 'bg-[#007aff] hover:bg-[#0071eb] shadow-blue-500/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer'
+                        }`}
+                      >
+                        {feedbackSent && <Check size={14} strokeWidth={2.5} />}
+                        <span>{feedbackSent ? 'Feedback Sent' : 'Submit Feedback'}</span>
+                      </button>
+                    )
+                  })()}
                 </div>
               </div>
             )}

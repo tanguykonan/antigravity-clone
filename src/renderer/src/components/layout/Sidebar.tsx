@@ -48,8 +48,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [openProjectOptionsId, setOpenProjectOptionsId] = useState<string | null>(null)
+  const [expandedProjectIds, setExpandedProjectIds] = useState<Set<string>>(
+    new Set(['desktop-llm', 'SmoothTerminal'])
+  )
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const projectButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+
+  const handleToggleExpand = (projectId: string) => {
+    setExpandedProjectIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(projectId)) {
+        next.delete(projectId)
+      } else {
+        next.add(projectId)
+      }
+      return next
+    })
+  }
 
   return (
     <aside
@@ -242,7 +257,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div key={project.id} className="flex flex-col">
               {/* Ligne principale du projet */}
               <div
-                onClick={() => onSelectProject(project.id)}
+                onClick={() => {
+                  onSelectProject(project.id)
+                  handleToggleExpand(project.id)
+                }}
                 className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 cursor-pointer group select-none"
                 style={{
                   height: 36,
@@ -327,6 +345,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
+                      setExpandedProjectIds((prev) => new Set(prev).add(project.id))
                       onCreateChatInProject(project.id)
                     }}
                     className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors cursor-pointer"
@@ -338,8 +357,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
 
-              {/* Sous-éléments de conversation */}
-              {project.conversations && project.conversations.length > 0 ? (
+              {/* Sous-éléments de conversation (affichés si le projet est déplié) */}
+              {expandedProjectIds.has(project.id) && project.conversations && project.conversations.length > 0 ? (
                 <div className="flex flex-col space-y-0.5">
                   {project.conversations.map((conv) => {
                     const isConvActive =
@@ -386,7 +405,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     )
                   })}
                 </div>
-              ) : project.lastMessage ? (
+              ) : expandedProjectIds.has(project.id) && project.lastMessage ? (
                 <div
                   onClick={(e) => {
                     e.stopPropagation()

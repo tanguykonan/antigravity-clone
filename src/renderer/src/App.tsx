@@ -50,6 +50,7 @@ const INITIAL_PROJECTS: Project[] = [
 export const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS)
   const [activeProjectId, setActiveProjectId] = useState<string | null>('desktop-llm')
+  const [lastSelectedProjectId, setLastSelectedProjectId] = useState<string>('desktop-llm')
   const [activeConversationId, setActiveConversationId] = useState<string | null>('c-1')
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'scheduled-tasks'>('chat')
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
@@ -57,6 +58,9 @@ export const App: React.FC = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
   const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) ?? null : null
+  const lastSelectedProject = projects.find((p) => p.id === lastSelectedProjectId) ?? projects[0]
+  const displayProject = activeProject || lastSelectedProject
+
   const activeConversation =
     activeProjectId && activeConversationId
       ? activeProject?.conversations?.find((c) => c.id === activeConversationId) ?? null
@@ -78,6 +82,7 @@ export const App: React.FC = () => {
   // Sélection d'un projet uniquement (ne sélectionne pas forcément un chat)
   const handleSelectProject = (id: string) => {
     setActiveProjectId(id)
+    setLastSelectedProjectId(id)
     setActiveConversationId(null)
     setActiveView('chat')
   }
@@ -85,6 +90,7 @@ export const App: React.FC = () => {
   // Sélection d'une conversation spécifique d'un projet
   const handleSelectConversation = (projectId: string, conversationId: string) => {
     setActiveProjectId(projectId)
+    setLastSelectedProjectId(projectId)
     setActiveConversationId(conversationId)
     setActiveView('chat')
   }
@@ -110,8 +116,23 @@ export const App: React.FC = () => {
     )
 
     setActiveProjectId(projectId)
+    setLastSelectedProjectId(projectId)
     setActiveConversationId(newConv.id)
     setActiveView('chat')
+  }
+
+  // Création d'un nouveau projet
+  const handleCreateProject = () => {
+    const newId = `project-${Date.now()}`
+    const newProj: Project = {
+      id: newId,
+      name: `project-${projects.length + 1}`,
+      conversations: []
+    }
+    setProjects((prev) => [newProj, ...prev])
+    setActiveProjectId(newId)
+    setLastSelectedProjectId(newId)
+    setActiveConversationId(null)
   }
 
   // Raccourci global Ctrl+Shift+P / Cmd+Shift+P pour ouvrir la palette de commande
@@ -180,6 +201,7 @@ export const App: React.FC = () => {
                   const targetProject = projects.find((p) => p.name === entry.projectName)
                   if (targetProject) {
                     setActiveProjectId(targetProject.id)
+                    setLastSelectedProjectId(targetProject.id)
                     const targetConv = targetProject.conversations?.find((c) => c.title === entry.title)
                     if (targetConv) {
                       setActiveConversationId(targetConv.id)
@@ -194,7 +216,14 @@ export const App: React.FC = () => {
                 }}
               />
             ) : (
-              <ChatInput projectName={activeProject?.name ?? null} />
+              <ChatInput
+                projectName={displayProject?.name ?? 'desktop-llm'}
+                projects={projects}
+                selectedProjectId={displayProject?.id ?? 'desktop-llm'}
+                onSelectProject={handleSelectProject}
+                onCreateProject={handleCreateProject}
+                hasActiveConversation={Boolean(activeProjectId && activeConversationId)}
+              />
             )}
           </div>
         </main>

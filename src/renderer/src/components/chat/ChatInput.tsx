@@ -1,12 +1,27 @@
 import React, { useState, useRef } from 'react'
 import { Plus, ChevronDown, Mic, ArrowRight, Folder, Monitor } from 'lucide-react'
+import { Project } from '../layout/Sidebar'
+import { ProjectSelectorDropdown } from './ProjectSelectorDropdown'
 
 interface ChatInputProps {
   projectName: string | null
+  projects?: Project[]
+  selectedProjectId?: string
+  onSelectProject?: (id: string) => void
+  onCreateProject?: () => void
+  hasActiveConversation?: boolean
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm' }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({
+  projectName = 'desktop-llm',
+  projects = [],
+  selectedProjectId = 'desktop-llm',
+  onSelectProject = () => {},
+  onCreateProject,
+  hasActiveConversation = false
+}) => {
   const [value, setValue] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -18,21 +33,50 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
     }
   }
 
+  const currentProjectName = projectName || 'desktop-llm'
+
   return (
     <div className="flex flex-col items-center justify-center h-full w-full px-8 pb-12">
       <div className="w-full max-w-2xl flex flex-col gap-2.5">
         {/* ── Project dropdown au-dessus de la carte (style macOS pill) ── */}
-        <div className="flex items-center gap-1.5 pl-1 select-none">
+        <div className="relative flex items-center gap-1.5 pl-1 select-none z-30">
           <button
             type="button"
-            className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5 transition-all cursor-pointer group"
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all cursor-pointer group ${
+              isDropdownOpen ? 'bg-white/10 text-white' : 'hover:bg-white/5'
+            }`}
           >
-            <Folder size={14} strokeWidth={1.6} className="text-[#8a8c87] group-hover:text-[#c5c7c2] transition-colors" />
-            <span style={{ fontSize: '13px', color: '#c5c7c2', fontWeight: 500 }} className="group-hover:text-white transition-colors">
-              {projectName || 'desktop-llm'}
+            <Folder
+              size={14}
+              strokeWidth={1.6}
+              className={`transition-colors ${
+                isDropdownOpen ? 'text-white' : 'text-[#8a8c87] group-hover:text-[#c5c7c2]'
+              }`}
+            />
+            <span
+              style={{ fontSize: '13px', color: isDropdownOpen ? '#ffffff' : '#c5c7c2', fontWeight: 500 }}
+              className="group-hover:text-white transition-colors"
+            >
+              {currentProjectName}
             </span>
-            <ChevronDown size={12} className="text-[#7a7c78] group-hover:text-[#c5c7c2] transition-colors" />
+            <ChevronDown
+              size={12}
+              className={`text-[#7a7c78] group-hover:text-[#c5c7c2] transition-transform duration-150 ${
+                isDropdownOpen ? 'rotate-180 text-white' : ''
+              }`}
+            />
           </button>
+
+          {/* Bulle Dropdown de sélection de projet */}
+          <ProjectSelectorDropdown
+            isOpen={isDropdownOpen}
+            onClose={() => setIsDropdownOpen(false)}
+            projects={projects}
+            selectedProjectId={selectedProjectId}
+            onSelectProject={onSelectProject}
+            onCreateProject={onCreateProject}
+          />
         </div>
 
         {/* ── Carte de saisie principale (macOS Frosted Glass & Inner Highlight) ── */}
@@ -127,17 +171,19 @@ export const ChatInput: React.FC<ChatInputProps> = ({ projectName = 'desktop-llm
               </div>
             </div>
 
-            {/* Ligne inférieure : Local dropdown */}
-            <div className="px-4 pb-3 pt-0.5">
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/10 border border-white/5 text-[#8a8c87] hover:text-white transition-all cursor-pointer"
-              >
-                <Monitor size={12} />
-                <span style={{ fontSize: '12px', fontWeight: 500 }}>Local</span>
-                <ChevronDown size={11} className="opacity-70" />
-              </button>
-            </div>
+            {/* Ligne inférieure : Local dropdown (affiché uniquement sur un nouveau chat sans conversation sélectionnée) */}
+            {!hasActiveConversation && (
+              <div className="px-4 pb-3 pt-0.5">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/10 border border-white/5 text-[#8a8c87] hover:text-white transition-all cursor-pointer"
+                >
+                  <Monitor size={12} />
+                  <span style={{ fontSize: '12px', fontWeight: 500 }}>Local</span>
+                  <ChevronDown size={11} className="opacity-70" />
+                </button>
+              </div>
+            )}
           </div>
         </form>
       </div>

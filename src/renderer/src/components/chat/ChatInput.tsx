@@ -5,6 +5,7 @@ import { ProjectSelectorDropdown } from './ProjectSelectorDropdown'
 import { ModelSelectorDropdown } from './ModelSelectorDropdown'
 import { LocalExecutionDropdown } from './LocalExecutionDropdown'
 import { BranchSelectorDropdown } from './BranchSelectorDropdown'
+import { AddContextDropdown } from './AddContextDropdown'
 import { ProviderModelTier } from '../../services/llm/types'
 import { llmManager } from '../../services/llm/LLMManager'
 
@@ -36,12 +37,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     () => llmManager.getActiveProvider().models.find((m) => m.id === 'claude-sonnet-medium') || llmManager.getActiveProvider().models[0]
   )
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
+  const [isAddContextOpen, setIsAddContextOpen] = useState(false)
   const [isLocalMenuOpen, setIsLocalMenuOpen] = useState(false)
   const [executionMode, setExecutionMode] = useState<'Local' | 'New Worktree'>('Local')
   const [selectedBranch, setSelectedBranch] = useState('main')
   const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const modelButtonRef = useRef<HTMLButtonElement>(null)
+  const addContextButtonRef = useRef<HTMLButtonElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const selectedModelId = externalModelId ?? internalModelId
   const handleSelectModel = (id: string, model: ProviderModelTier) => {
@@ -50,6 +54,21 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     llmManager.setActiveProvider(model.providerId)
     llmManager.setActiveTierId(model.id)
     externalOnSelectModel?.(id)
+  }
+
+  const handleSelectContextAction = (actionId: string) => {
+    if (actionId === 'media') {
+      fileInputRef.current?.click()
+    } else if (actionId === 'mentions') {
+      setValue((prev) => (prev ? `${prev} @` : '@'))
+      textareaRef.current?.focus()
+    } else if (actionId === 'actions') {
+      setValue((prev) => (prev ? `${prev} /` : '/'))
+      textareaRef.current?.focus()
+    } else if (actionId === 'browser') {
+      setValue((prev) => (prev ? `${prev} /browser ` : '/browser '))
+      textareaRef.current?.focus()
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -156,14 +175,50 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <div className="flex items-center justify-between px-4 pb-2.5">
               {/* Gauche : bouton + et sélecteur de modèle */}
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/[0.06] text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-                  data-tooltip="Attach context"
-                  data-tooltip-side="top"
-                >
-                  <Plus size={15} strokeWidth={2} />
-                </button>
+                {/* Bouton + et bulle Add Context */}
+                <div className="relative">
+                  <button
+                    ref={addContextButtonRef}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsAddContextOpen((prev) => !prev)
+                    }}
+                    className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all cursor-pointer active:scale-95 ${
+                      isAddContextOpen
+                        ? 'bg-white/10 text-white'
+                        : 'hover:bg-white/[0.06] text-[#8a8c87] hover:text-white'
+                    }`}
+                    data-tooltip={isAddContextOpen ? undefined : 'Attach context'}
+                    data-tooltip-side="top"
+                  >
+                    <Plus size={15} strokeWidth={2} />
+                  </button>
+
+                  <AddContextDropdown
+                    isOpen={isAddContextOpen}
+                    onClose={() => setIsAddContextOpen(false)}
+                    anchorRef={addContextButtonRef}
+                    onSelectAction={handleSelectContextAction}
+                  />
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        const fileNames = Array.from(e.target.files)
+                          .map((f) => f.name)
+                          .join(', ')
+                        setValue((prev) =>
+                          prev ? `${prev} [Attached: ${fileNames}] ` : `[Attached: ${fileNames}] `
+                        )
+                      }
+                    }}
+                  />
+                </div>
 
                 {/* Sélecteur de modèle épuré & transparent de base */}
                 <div className="relative">

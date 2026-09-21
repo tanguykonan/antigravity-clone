@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { Plus, ChevronDown, Mic, ArrowRight, Folder, Monitor } from 'lucide-react'
+import { Plus, ChevronDown, Mic, ArrowRight, Folder } from 'lucide-react'
 import { Project } from '../layout/Sidebar'
 import { ProjectSelectorDropdown } from './ProjectSelectorDropdown'
 import { ModelSelectorDropdown } from './ModelSelectorDropdown'
@@ -146,14 +146,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/[0.06] text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
                   data-tooltip="Attach file or context"
                   data-tooltip-side="top"
                 >
                   <Plus size={15} strokeWidth={2} />
                 </button>
 
-                {/* Sélecteur de modèle avec popover intelligent */}
+                {/* Sélecteur de modèle épuré & transparent de base */}
                 <div className="relative">
                   <button
                     ref={modelButtonRef}
@@ -162,18 +162,18 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                       e.stopPropagation()
                       setIsModelMenuOpen((prev) => !prev)
                     }}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/5 transition-all cursor-pointer active:scale-98 ${
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all cursor-pointer group select-none ${
                       isModelMenuOpen
-                        ? 'bg-white/10 text-white shadow-sm'
-                        : 'bg-white/5 hover:bg-white/10 text-[#f0f0ee]'
+                        ? 'bg-white/10 text-white'
+                        : 'text-[#7a7c78] hover:text-white hover:bg-white/[0.06]'
                     }`}
                   >
-                    <span style={{ fontSize: '13px', fontWeight: 500 }}>
+                    <span style={{ fontSize: '13px', fontWeight: 400 }}>
                       {selectedModel ? selectedModel.name : 'Claude 3.7 Sonnet (Thinking)'}
                     </span>
                     <ChevronDown
                       size={12}
-                      className={`text-[#8a8c87] transition-transform duration-150 ${
+                      className={`text-[#8a8c87] group-hover:text-white transition-transform duration-150 ${
                         isModelMenuOpen ? 'rotate-180 text-white' : ''
                       }`}
                     />
@@ -193,7 +193,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/[0.06] text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
                   data-tooltip="Voice input"
                   data-tooltip-side="top"
                 >
@@ -217,16 +217,35 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               </div>
             </div>
 
-            {/* Ligne inférieure : Local dropdown (affiché uniquement sur un nouveau chat sans conversation sélectionnée) */}
+            {/* Ligne inférieure : Local dropdown discret et classe (style minimaliste macOS) */}
             {!hasActiveConversation && (
-              <div className="px-4 pb-3 pt-0.5">
+              <div className="px-4 pb-2.5 pt-0 flex items-center">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/10 border border-white/5 text-[#8a8c87] hover:text-white transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04] transition-colors cursor-pointer group"
                 >
-                  <Monitor size={12} />
-                  <span style={{ fontSize: '12px', fontWeight: 500 }}>Local</span>
-                  <ChevronDown size={11} className="opacity-70" />
+                  {/* Icône Laptop vectorielle épurée */}
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-[#7a7c78] group-hover:text-[#c5c7c2] transition-colors"
+                  >
+                    <rect x="3" y="4" width="18" height="12" rx="2" />
+                    <line x1="2" y1="20" x2="22" y2="20" />
+                  </svg>
+                  <span style={{ fontSize: '12px', fontWeight: 400 }} className="leading-none">
+                    Local
+                  </span>
+                  <ChevronDown
+                    size={11}
+                    className="text-[#656762] group-hover:text-[#c5c7c2] transition-colors opacity-80"
+                  />
                 </button>
               </div>
             )}

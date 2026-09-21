@@ -3,6 +3,7 @@ import { Plus, Search } from 'lucide-react'
 import { Project } from '../layout/Sidebar'
 import { NewScheduledTaskModal, ScheduledTask } from './NewScheduledTaskModal'
 import { ScheduledTaskOptionsMenu } from './ScheduledTaskOptionsMenu'
+import { ScheduledTaskDetailView } from './ScheduledTaskDetailView'
 
 interface ScheduledTasksViewProps {
   projects?: Project[]
@@ -15,6 +16,7 @@ export const ScheduledTasksView: React.FC<ScheduledTasksViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('')
   const [isNewModalOpen, setIsNewModalOpen] = useState(false)
   const [openOptionsId, setOpenOptionsId] = useState<string | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   const handleAddTask = (newTask: Omit<ScheduledTask, 'id' | 'createdAt'>) => {
     const task: ScheduledTask = {
@@ -29,11 +31,29 @@ export const ScheduledTasksView: React.FC<ScheduledTasksViewProps> = ({
   const handleDeleteTask = (id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id))
     if (openOptionsId === id) setOpenOptionsId(null)
+    if (selectedTaskId === id) setSelectedTaskId(null)
+  }
+
+  const handleUpdateTask = (updated: ScheduledTask) => {
+    setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))
   }
 
   const handleToggleTask = (id: string) => {
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, enabled: t.enabled === false ? true : false } : t))
+    )
+  }
+
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId)
+
+  if (selectedTask) {
+    return (
+      <ScheduledTaskDetailView
+        task={selectedTask}
+        onBack={() => setSelectedTaskId(null)}
+        onUpdateTask={handleUpdateTask}
+        onDeleteTask={handleDeleteTask}
+      />
     )
   }
 
@@ -92,12 +112,13 @@ export const ScheduledTasksView: React.FC<ScheduledTasksViewProps> = ({
               return (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between py-2.5 px-3 rounded-xl transition-all duration-150 hover:bg-white/[0.04] group select-none"
+                  onClick={() => setSelectedTaskId(task.id)}
+                  className="flex items-center justify-between py-2.5 px-3 rounded-xl transition-all duration-150 hover:bg-white/[0.04] group select-none cursor-pointer"
                 >
                   {/* Left Side : Name + Schedule string */}
                   <div className="flex flex-col min-w-0 pr-4">
                     <span
-                      className="truncate text-[#eceee9] font-normal"
+                      className="truncate text-[#eceee9] font-normal group-hover:text-white transition-colors"
                       style={{ fontSize: '14px', lineHeight: '1.4' }}
                     >
                       {task.name}
@@ -147,7 +168,10 @@ export const ScheduledTasksView: React.FC<ScheduledTasksViewProps> = ({
                       type="button"
                       role="switch"
                       aria-checked={isEnabled}
-                      onClick={() => handleToggleTask(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleToggleTask(task.id)
+                      }}
                       className="relative inline-flex items-center flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
                       style={{
                         width: '38px',

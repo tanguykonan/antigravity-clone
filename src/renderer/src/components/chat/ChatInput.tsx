@@ -3,6 +3,7 @@ import { Plus, ChevronDown, Mic, ArrowRight, Folder } from 'lucide-react'
 import { Project } from '../layout/Sidebar'
 import { ProjectSelectorDropdown } from './ProjectSelectorDropdown'
 import { ModelSelectorDropdown } from './ModelSelectorDropdown'
+import { LocalExecutionDropdown } from './LocalExecutionDropdown'
 import { ProviderModelTier } from '../../services/llm/types'
 import { llmManager } from '../../services/llm/LLMManager'
 
@@ -34,6 +35,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     () => llmManager.getActiveProvider().models.find((m) => m.id === 'claude-sonnet-medium') || llmManager.getActiveProvider().models[0]
   )
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
+  const [isLocalMenuOpen, setIsLocalMenuOpen] = useState(false)
+  const [executionMode, setExecutionMode] = useState('Local')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const modelButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -220,33 +223,56 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             {/* Ligne inférieure : Local dropdown discret et classe (style minimaliste macOS) */}
             {!hasActiveConversation && (
               <div className="px-4 pb-2.5 pt-0 flex items-center">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04] transition-colors cursor-pointer group"
-                >
-                  {/* Icône Laptop vectorielle épurée */}
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-[#7a7c78] group-hover:text-[#c5c7c2] transition-colors"
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsLocalMenuOpen((prev) => !prev)
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer group select-none ${
+                      isLocalMenuOpen
+                        ? 'bg-white/10 text-white'
+                        : 'text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04]'
+                    }`}
                   >
-                    <rect x="3" y="4" width="18" height="12" rx="2" />
-                    <line x1="2" y1="20" x2="22" y2="20" />
-                  </svg>
-                  <span style={{ fontSize: '12px', fontWeight: 400 }} className="leading-none">
-                    Local
-                  </span>
-                  <ChevronDown
-                    size={11}
-                    className="text-[#656762] group-hover:text-[#c5c7c2] transition-colors opacity-80"
+                    {/* Icône Laptop vectorielle épurée */}
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`transition-colors ${
+                        isLocalMenuOpen ? 'text-white' : 'text-[#7a7c78] group-hover:text-[#c5c7c2]'
+                      }`}
+                    >
+                      <rect x="3" y="4" width="18" height="12" rx="2" />
+                      <line x1="2" y1="20" x2="22" y2="20" />
+                    </svg>
+                    <span style={{ fontSize: '12px', fontWeight: 400 }} className="leading-none">
+                      {executionMode}
+                    </span>
+                    <ChevronDown
+                      size={11}
+                      className={`transition-transform duration-150 ${
+                        isLocalMenuOpen
+                          ? 'rotate-180 text-white opacity-100'
+                          : 'text-[#656762] group-hover:text-[#c5c7c2] opacity-80'
+                      }`}
+                    />
+                  </button>
+
+                  <LocalExecutionDropdown
+                    isOpen={isLocalMenuOpen}
+                    onClose={() => setIsLocalMenuOpen(false)}
+                    selectedOption={executionMode}
+                    onSelectOption={(opt) => setExecutionMode(opt)}
                   />
-                </button>
+                </div>
               </div>
             )}
           </div>

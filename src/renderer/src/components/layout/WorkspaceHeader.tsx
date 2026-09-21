@@ -1,5 +1,6 @@
 import React from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import appLogo from '../../assets/logo.png'
 
 interface WorkspaceHeaderProps {
   projectName?: string
@@ -22,20 +23,13 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         backgroundColor: 'transparent'
       }}
     >
-      {/* Côté gauche : Si plein écran (sidebar fermée), affiche Logo A + [|] + < + >. Sinon affiche le breadcrumb du projet */}
+      {/* Côté gauche : Si plein écran (sidebar fermée), affiche Logo + [|] + < + >. Sinon affiche le breadcrumb du projet */}
       <div className="flex items-center gap-2 text-xs truncate max-w-xl">
         {showNavControls && (
           <div className="flex items-center gap-1 mr-2">
-            {/* Logo A */}
+            {/* Logo App */}
             <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 3L21 19H3L12 3Z"
-                  stroke="#e2e4df"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <img src={appLogo} alt="App Logo" className="w-[18px] h-[18px] object-contain rounded-sm" />
             </div>
 
             {/* Toggle sidebar button — pas de fond permanent, effet hover & active au clic */}

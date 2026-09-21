@@ -1,5 +1,6 @@
 import React from 'react'
 import { Plus, History, CalendarClock, Folder, Settings, SlidersHorizontal, FolderPlus, ChevronLeft, ChevronRight } from 'lucide-react'
+import appLogo from '../../assets/logo.png'
 
 export interface ProjectItem {
   id: string
@@ -45,16 +46,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className="flex items-center gap-1 px-2 flex-shrink-0"
         style={{ height: 38 }}
       >
-        {/* Logo A stylisé Antigravity */}
+        {/* Logo App */}
         <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 3L21 19H3L12 3Z"
-              stroke="#e2e4df"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <img src={appLogo} alt="App Logo" className="w-[18px] h-[18px] object-contain rounded-sm" />
         </div>
 
         {/* Panel toggle — pas de pill permanent, effet hover & active clic */}

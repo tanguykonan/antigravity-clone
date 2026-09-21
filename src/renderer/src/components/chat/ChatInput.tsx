@@ -64,48 +64,54 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const currentProjectName = projectName || 'desktop-llm'
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full px-8 pb-12">
+    <div
+      className={`flex flex-col items-center h-full w-full px-8 transition-all duration-200 ${
+        hasActiveConversation ? 'justify-end pb-6' : 'justify-center pb-12'
+      }`}
+    >
       <div className="w-full max-w-2xl flex flex-col gap-2.5">
-        {/* ── Project dropdown au-dessus de la carte (style macOS pill) ── */}
-        <div className="relative flex items-center gap-1.5 pl-1 select-none z-30">
-          <button
-            type="button"
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all cursor-pointer group ${
-              isDropdownOpen ? 'bg-white/10 text-white' : 'hover:bg-white/5'
-            }`}
-          >
-            <Folder
-              size={14}
-              strokeWidth={1.6}
-              className={`transition-colors ${
-                isDropdownOpen ? 'text-white' : 'text-[#8a8c87] group-hover:text-[#c5c7c2]'
+        {/* ── Project dropdown au-dessus de la carte (uniquement si pas de conversation active) ── */}
+        {!hasActiveConversation && (
+          <div className="relative flex items-center gap-1.5 pl-1 select-none z-30">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all cursor-pointer group ${
+                isDropdownOpen ? 'bg-white/10 text-white' : 'hover:bg-white/5'
               }`}
-            />
-            <span
-              style={{ fontSize: '13px', color: isDropdownOpen ? '#ffffff' : '#c5c7c2', fontWeight: 500 }}
-              className="group-hover:text-white transition-colors"
             >
-              {currentProjectName}
-            </span>
-            <ChevronDown
-              size={12}
-              className={`text-[#7a7c78] group-hover:text-[#c5c7c2] transition-transform duration-150 ${
-                isDropdownOpen ? 'rotate-180 text-white' : ''
-              }`}
-            />
-          </button>
+              <Folder
+                size={14}
+                strokeWidth={1.6}
+                className={`transition-colors ${
+                  isDropdownOpen ? 'text-white' : 'text-[#8a8c87] group-hover:text-[#c5c7c2]'
+                }`}
+              />
+              <span
+                style={{ fontSize: '13px', color: isDropdownOpen ? '#ffffff' : '#c5c7c2', fontWeight: 500 }}
+                className="group-hover:text-white transition-colors"
+              >
+                {currentProjectName}
+              </span>
+              <ChevronDown
+                size={12}
+                className={`text-[#7a7c78] group-hover:text-[#c5c7c2] transition-transform duration-150 ${
+                  isDropdownOpen ? 'rotate-180 text-white' : ''
+                }`}
+              />
+            </button>
 
-          {/* Bulle Dropdown de sélection de projet */}
-          <ProjectSelectorDropdown
-            isOpen={isDropdownOpen}
-            onClose={() => setIsDropdownOpen(false)}
-            projects={projects}
-            selectedProjectId={selectedProjectId}
-            onSelectProject={onSelectProject}
-            onCreateProject={onCreateProject}
-          />
-        </div>
+            {/* Bulle Dropdown de sélection de projet */}
+            <ProjectSelectorDropdown
+              isOpen={isDropdownOpen}
+              onClose={() => setIsDropdownOpen(false)}
+              projects={projects}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={onSelectProject}
+              onCreateProject={onCreateProject}
+            />
+          </div>
+        )}
 
         {/* ── Carte de saisie principale (macOS Frosted Glass & Inner Highlight) ── */}
         <form onSubmit={handleSubmit} className="w-full">
@@ -153,7 +159,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   type="button"
                   className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/[0.06] text-[#8a8c87] hover:text-white transition-all cursor-pointer active:scale-95"
-                  data-tooltip="Attach file or context"
+                  data-tooltip="Attach context"
                   data-tooltip-side="top"
                 >
                   <Plus size={15} strokeWidth={2} />

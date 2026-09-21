@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import appLogo from '../../assets/logo.png'
+import { WorkspaceMoreOptionsMenu } from './WorkspaceMoreOptionsMenu'
 
 interface WorkspaceHeaderProps {
   projectName?: string
@@ -15,6 +16,8 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
   showNavControls = false,
   onToggleSidebar
 }) => {
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+
   return (
     <div
       className="flex items-center justify-between px-4 flex-shrink-0 select-none"
@@ -84,20 +87,32 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         )}
       </div>
 
-      {/* Boutons à droite STRICTEMENT INTACTS : 3 points + Right panel toggle */}
+      {/* Boutons à droite : 3 points + Right panel toggle */}
       <div className="flex items-center gap-1.5 flex-shrink-0">
-        {/* Three dots menu */}
-        <button
-          className="w-7 h-7 flex items-center justify-center rounded text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] transition-colors cursor-pointer"
-          data-tooltip="More options"
-          data-tooltip-side="bottom"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="5" r="1.75" />
-            <circle cx="12" cy="12" r="1.75" />
-            <circle cx="12" cy="19" r="1.75" />
-          </svg>
-        </button>
+        {/* Three dots menu with popover */}
+        <div className="relative">
+          <button
+            onClick={() => setIsMoreMenuOpen((prev) => !prev)}
+            className={`w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer ${
+              isMoreMenuOpen
+                ? 'bg-white/10 text-white'
+                : 'text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723]'
+            }`}
+            data-tooltip={isMoreMenuOpen ? undefined : 'More options'}
+            data-tooltip-side="bottom"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="5" r="1.75" />
+              <circle cx="12" cy="12" r="1.75" />
+              <circle cx="12" cy="19" r="1.75" />
+            </svg>
+          </button>
+
+          <WorkspaceMoreOptionsMenu
+            isOpen={isMoreMenuOpen}
+            onClose={() => setIsMoreMenuOpen(false)}
+          />
+        </div>
 
         {/* Right panel toggle icon */}
         <button

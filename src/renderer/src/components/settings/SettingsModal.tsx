@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { X, ChevronDown, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw, RotateCw } from 'lucide-react'
+import { X, ChevronDown, ChevronRight, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw, RotateCw } from 'lucide-react'
 import { llmManager } from '../../services/llm/LLMManager'
 
 export type SettingsTab =
@@ -242,6 +242,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [artifactReviewPolicy, setArtifactReviewPolicy] = useState('Always Ask')
   const [autoUpdate, setAutoUpdate] = useState(true)
   const [launchAtLogin, setLaunchAtLogin] = useState(false)
+
+  // Application tab state
+  const [preventSleep, setPreventSleep] = useState(false)
+  const [keepInMenuBar, setKeepInMenuBar] = useState(false)
+  const [enableRemoteControl, setEnableRemoteControl] = useState(false)
 
   // Appearance tab state
   const [appearanceTheme, setAppearanceTheme] = useState<'system' | 'light' | 'dark'>('system')
@@ -520,7 +525,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {activeTab === 'General' &&
                     'Configure agent execution, queued message delivery, and permissions.'}
                   {activeTab === 'Application' &&
-                    'Manage system behavior, updates, startup preferences, and storage.'}
+                    'Manage Antigravity app settings.'}
                   {activeTab === 'Appearance' &&
                     "Configure the agent's visual theme and display preferences."}
                   {activeTab === 'Models' &&
@@ -791,48 +796,74 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* ─────────── 2. APPLICATION ─────────── */}
             {activeTab === 'Application' && (
-              <div className="space-y-6 pt-1">
+              <div className="space-y-6 pt-1 max-w-2xl">
+                {/* 1. General */}
                 <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Startup & Window</h3>
+                  <h3 className="text-[13px] font-medium text-white mb-2">General</h3>
                   <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    {/* Prevent Sleep */}
                     <div className="p-4 flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-white text-[13.5px]">Launch at Login</div>
-                        <div className="text-[12px] text-[#8e9089] mt-0.5">
-                          Automatically start Progravity when you log into your system.
+                      <div className="max-w-md">
+                        <div className="font-medium text-white text-[13.5px]">Prevent Sleep</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5 leading-relaxed">
+                          Prevent the computer from sleeping while the app is running.
                         </div>
                       </div>
-                      <MacOSToggle checked={launchAtLogin} onChange={setLaunchAtLogin} />
+                      <MacOSToggle checked={preventSleep} onChange={setPreventSleep} />
                     </div>
 
+                    {/* Keep In Menu Bar */}
                     <div className="p-4 flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-white text-[13.5px]">Automatic Updates</div>
-                        <div className="text-[12px] text-[#8e9089] mt-0.5">
-                          Keep Progravity up to date with new features and improvements.
+                      <div className="max-w-md">
+                        <div className="font-medium text-white text-[13.5px]">Keep In Menu Bar</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5 leading-relaxed">
+                          Keep the app accessible from the menu bar and running in the background when all windows are closed.
                         </div>
                       </div>
-                      <MacOSToggle checked={autoUpdate} onChange={setAutoUpdate} />
+                      <MacOSToggle checked={keepInMenuBar} onChange={setKeepInMenuBar} />
                     </div>
                   </div>
                 </div>
 
+                {/* 2. Remote Control */}
                 <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Storage & Cache</h3>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Remote Control</h3>
                   <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
-                    <div>
-                      <div className="font-medium text-white text-[13.5px]">Temporary Cache</div>
-                      <div className="text-[12px] text-[#8e9089] mt-0.5">
-                        Clear local caches and downloaded models metadata.
+                    <div className="max-w-md">
+                      <div className="font-medium text-white text-[13.5px]">Enable Remote Control</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5 leading-relaxed">
+                        Work with local agents from another device.
+                      </div>
+                    </div>
+                    <MacOSToggle checked={enableRemoteControl} onChange={setEnableRemoteControl} />
+                  </div>
+                </div>
+
+                {/* 3. Notifications */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Notifications</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="max-w-md">
+                      <div className="font-medium text-white text-[13.5px]">Notification Settings</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5 leading-relaxed">
+                        To modify notification settings, open your operating system's system preferences.
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => alert('Cache cleared successfully')}
-                      className="px-3.5 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer flex-shrink-0"
                     >
-                      Clear Cache
+                      Open System Preferences
                     </button>
+                  </div>
+                </div>
+
+                {/* 4. Version */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Version</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="font-medium text-white text-[13.5px]">App version</div>
+                    <div className="text-[13px] text-[#8e9089] font-mono select-all">2.15.1</div>
                   </div>
                 </div>
               </div>

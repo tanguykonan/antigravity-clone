@@ -95,13 +95,15 @@ export const LocalExecutionDropdown: React.FC<LocalExecutionDropdownProps> = ({
         <button
           type="button"
           onClick={() => {
+            onSelectOption?.('New Worktree')
             onNewWorktree?.()
             onClose()
           }}
           className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left transition-colors cursor-pointer group hover:bg-white/[0.08]"
           style={{
-            color: '#dcded9',
-            fontSize: '12.5px'
+            color: selectedOption === 'New Worktree' ? '#ffffff' : '#dcded9',
+            fontSize: '12.5px',
+            backgroundColor: selectedOption === 'New Worktree' ? 'rgba(255, 255, 255, 0.05)' : 'transparent'
           }}
         >
           {/* Icône Branching Worktree vectorielle */}

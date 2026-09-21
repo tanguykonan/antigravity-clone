@@ -4,6 +4,7 @@ import { Project } from '../layout/Sidebar'
 import { ProjectSelectorDropdown } from './ProjectSelectorDropdown'
 import { ModelSelectorDropdown } from './ModelSelectorDropdown'
 import { LocalExecutionDropdown } from './LocalExecutionDropdown'
+import { BranchSelectorDropdown } from './BranchSelectorDropdown'
 import { ProviderModelTier } from '../../services/llm/types'
 import { llmManager } from '../../services/llm/LLMManager'
 
@@ -36,7 +37,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   )
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   const [isLocalMenuOpen, setIsLocalMenuOpen] = useState(false)
-  const [executionMode, setExecutionMode] = useState('Local')
+  const [executionMode, setExecutionMode] = useState<'Local' | 'New Worktree'>('Local')
+  const [selectedBranch, setSelectedBranch] = useState('main')
+  const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const modelButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -220,9 +223,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               </div>
             </div>
 
-            {/* Ligne inférieure : Local dropdown discret et classe (style minimaliste macOS) */}
+            {/* Ligne inférieure : Local / New Worktree + Branch dropdown (style minimaliste macOS) */}
             {!hasActiveConversation && (
-              <div className="px-4 pb-2.5 pt-0 flex items-center">
+              <div className="px-4 pb-2.5 pt-0 flex items-center gap-2.5">
+                {/* 1. Mode d'exécution (Local ou New Worktree) */}
                 <div className="relative">
                   <button
                     type="button"
@@ -236,23 +240,46 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         : 'text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04]'
                     }`}
                   >
-                    {/* Icône Laptop vectorielle épurée */}
-                    <svg
-                      width="13"
-                      height="13"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={`transition-colors ${
-                        isLocalMenuOpen ? 'text-white' : 'text-[#7a7c78] group-hover:text-[#c5c7c2]'
-                      }`}
-                    >
-                      <rect x="3" y="4" width="18" height="12" rx="2" />
-                      <line x1="2" y1="20" x2="22" y2="20" />
-                    </svg>
+                    {executionMode === 'Local' ? (
+                      /* Icône Laptop */
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`transition-colors ${
+                          isLocalMenuOpen ? 'text-white' : 'text-[#7a7c78] group-hover:text-[#c5c7c2]'
+                        }`}
+                      >
+                        <rect x="3" y="4" width="18" height="12" rx="2" />
+                        <line x1="2" y1="20" x2="22" y2="20" />
+                      </svg>
+                    ) : (
+                      /* Icône Branching Worktree */
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`transition-colors ${
+                          isLocalMenuOpen ? 'text-white' : 'text-[#7a7c78] group-hover:text-[#c5c7c2]'
+                        }`}
+                      >
+                        <line x1="12" y1="21" x2="12" y2="13" />
+                        <path d="M12 13L7 8" />
+                        <polyline points="10 8 7 8 7 11" />
+                        <path d="M12 13L17 8" />
+                        <polyline points="14 8 17 8 17 11" />
+                      </svg>
+                    )}
                     <span style={{ fontSize: '12px', fontWeight: 400 }} className="leading-none">
                       {executionMode}
                     </span>
@@ -270,9 +297,65 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     isOpen={isLocalMenuOpen}
                     onClose={() => setIsLocalMenuOpen(false)}
                     selectedOption={executionMode}
-                    onSelectOption={(opt) => setExecutionMode(opt)}
+                    onSelectOption={(opt) => setExecutionMode(opt as 'Local' | 'New Worktree')}
                   />
                 </div>
+
+                {/* 2. Sélecteur de branche git (visible si New Worktree actif) */}
+                {executionMode === 'New Worktree' && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsBranchMenuOpen((prev) => !prev)
+                      }}
+                      className={`inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer group select-none ${
+                        isBranchMenuOpen
+                          ? 'bg-white/10 text-white'
+                          : 'text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      {/* Icône Git Branch */}
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`transition-colors ${
+                          isBranchMenuOpen ? 'text-white' : 'text-[#7a7c78] group-hover:text-[#c5c7c2]'
+                        }`}
+                      >
+                        <line x1="6" y1="3" x2="6" y2="15" />
+                        <circle cx="18" cy="6" r="3" />
+                        <circle cx="6" cy="18" r="3" />
+                        <path d="M18 9a9 9 0 0 1-9 9" />
+                      </svg>
+                      <span style={{ fontSize: '12px', fontWeight: 400 }} className="leading-none">
+                        {selectedBranch}
+                      </span>
+                      <ChevronDown
+                        size={11}
+                        className={`transition-transform duration-150 ${
+                          isBranchMenuOpen
+                            ? 'rotate-180 text-white opacity-100'
+                            : 'text-[#656762] group-hover:text-[#c5c7c2] opacity-80'
+                        }`}
+                      />
+                    </button>
+
+                    <BranchSelectorDropdown
+                      isOpen={isBranchMenuOpen}
+                      onClose={() => setIsBranchMenuOpen(false)}
+                      selectedBranch={selectedBranch}
+                      onSelectBranch={(branch) => setSelectedBranch(branch)}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>

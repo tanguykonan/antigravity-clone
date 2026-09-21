@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { X, ChevronDown, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw } from 'lucide-react'
+import { X, ChevronDown, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw, RotateCw } from 'lucide-react'
 import { llmManager } from '../../services/llm/LLMManager'
 
 export type SettingsTab =
@@ -188,6 +188,41 @@ const ColorPickerRow: React.FC<{
   )
 }
 
+// ── Composant Jauge circulaire de quota (style Google Antigravity / Progravity) ──
+const CircularProgress: React.FC<{
+  percentage: number
+  size?: number
+  strokeWidth?: number
+}> = ({ percentage, size = 26, strokeWidth = 3 }) => {
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
+  const strokeDashoffset = circumference - (percentage / 100) * circumference
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90 flex-shrink-0">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="rgba(74, 150, 80, 0.22)"
+        strokeWidth={strokeWidth}
+        fill="transparent"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="#48a75e"
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        fill="transparent"
+      />
+    </svg>
+  )
+}
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
@@ -219,6 +254,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [darkBg, setDarkBg] = useState('#101010')
   const [darkFg, setDarkFg] = useState('#EEEEEE')
   const [darkAccent, setDarkAccent] = useState('#007ACC')
+
+  // Models & Usage state
+  const [enableCreditOverages, setEnableCreditOverages] = useState(false)
 
   const [feedbackCategory, setFeedbackCategory] = useState('Bug Report')
   const [feedbackText, setFeedbackText] = useState('')
@@ -455,9 +493,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Header de l'onglet avec bouton de fermeture (sans séparateur) */}
           <div className="flex items-start justify-between px-8 pt-7 pb-4 flex-shrink-0">
             <div>
-              <h2 className="text-[22px] font-semibold text-white tracking-tight leading-snug">
+              <h2 className="text-[22px] font-semibold text-white tracking-tight leading-snug flex items-center gap-2.5">
                 {activeTab === 'Account'
                   ? 'Account'
+                  : activeTab === 'Models'
+                  ? (
+                      <>
+                        <span>Models and Usage</span>
+                        <button
+                          type="button"
+                          className="p-1 text-[#8e9089] hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                          title="Refresh model quotas"
+                        >
+                          <RotateCw size={15} strokeWidth={2} />
+                        </button>
+                      </>
+                    )
                   : activeTab.startsWith('proj-')
                   ? 'Project Settings'
                   : activeTab}
@@ -473,7 +524,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {activeTab === 'Appearance' &&
                     "Configure the agent's visual theme and display preferences."}
                   {activeTab === 'Models' &&
-                    'Configure local & cloud AI providers, models, and API tokens.'}
+                    'Manage your model quota and credits.'}
                   {activeTab === 'Customizations' &&
                     'Manage system prompts, developer rules, and AI skills.'}
                   {activeTab === 'Shortcuts' &&
@@ -1009,42 +1060,187 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             )}
 
-            {/* ─────────── 4. MODELS ─────────── */}
+            {/* ─────────── 4. MODELS & USAGE ─────────── */}
             {activeTab === 'Models' && (
-              <div className="space-y-6 pt-1">
+              <div className="space-y-6 pt-1 max-w-2xl">
+                {/* 1. Plan */}
                 <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Connected Providers</h3>
-                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
-                    {llmManager.getAllProviders().map((provider) => (
-                      <div
-                        key={provider.id}
-                        className="p-3.5 flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-white font-medium text-[12px]">
-                            {provider.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium text-white text-[13px] flex items-center gap-2">
-                              {provider.name}
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/10 text-[#8e9089]">
-                                {provider.isLocal ? 'Local' : 'Cloud'}
-                              </span>
-                            </div>
-                            <div className="text-[11.5px] text-[#7a7c78] mt-0.5">
-                              {provider.models.length} models available
-                            </div>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          className="px-3 py-1 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[12px] text-[#dcded9] hover:text-white transition-colors cursor-pointer"
-                        >
-                          Configure
-                        </button>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Plan</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div>
+                      <div className="font-medium text-white text-[13.5px]">Your Plan: Google AI Pro</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5">
+                        You can upgrade to a Google AI Ultra plan to receive higher rate limits.
                       </div>
-                    ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="px-4 py-1.5 rounded-lg text-white font-medium text-[12.5px] transition-all cursor-pointer active:scale-95 shadow-md flex-shrink-0"
+                      style={{
+                        backgroundColor: '#e60067'
+                      }}
+                    >
+                      Upgrade
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Model Credits */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Model Credits</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="max-w-xl pr-4">
+                      <div className="font-medium text-white text-[13.5px]">Enable AI Credit Overages</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5 leading-relaxed">
+                        When toggled on, Antigravity will use your AI credits to fulfill model requests once you're out of model quota. Antigravity will always use your model quota first before using AI credits.
+                      </div>
+                    </div>
+
+                    <MacOSToggle
+                      checked={enableCreditOverages}
+                      onChange={setEnableCreditOverages}
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Gemini Models */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <h3 className="text-[13px] font-medium text-white">Gemini Models</h3>
+                    <Info size={13} className="text-[#7a7c78] hover:text-[#9e9e9a] cursor-pointer" />
+                  </div>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Weekly Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have used some of your weekly limit, it will fully refresh in 6 days, 17 hours.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">91%</span>
+                        <CircularProgress percentage={91} />
+                      </div>
+                    </div>
+
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Five Hour Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have used some of your 5-hour limit, it will fully refresh in 4 hours, 48 minutes.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">98%</span>
+                        <CircularProgress percentage={98} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Anthropic Models */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <h3 className="text-[13px] font-medium text-white">Anthropic Models</h3>
+                    <Info size={13} className="text-[#7a7c78] hover:text-[#9e9e9a] cursor-pointer" />
+                  </div>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Weekly Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have used some of your weekly limit, it will fully refresh in 6 days, 18 hours.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">84%</span>
+                        <CircularProgress percentage={84} />
+                      </div>
+                    </div>
+
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Five Hour Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have full 5-hour limit remaining.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">100%</span>
+                        <CircularProgress percentage={100} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. OpenAI Models */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <h3 className="text-[13px] font-medium text-white">OpenAI Models</h3>
+                    <Info size={13} className="text-[#7a7c78] hover:text-[#9e9e9a] cursor-pointer" />
+                  </div>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Weekly Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have used some of your weekly limit, it will fully refresh in 5 days, 14 hours.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">92%</span>
+                        <CircularProgress percentage={92} />
+                      </div>
+                    </div>
+
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Five Hour Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have used some of your 5-hour limit, it will fully refresh in 3 hours, 20 minutes.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">96%</span>
+                        <CircularProgress percentage={96} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Mistral Models */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <h3 className="text-[13px] font-medium text-white">Mistral Models</h3>
+                    <Info size={13} className="text-[#7a7c78] hover:text-[#9e9e9a] cursor-pointer" />
+                  </div>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Weekly Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have used some of your weekly limit, it will fully refresh in 6 days, 22 hours.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">95%</span>
+                        <CircularProgress percentage={95} />
+                      </div>
+                    </div>
+
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Five Hour Limit Remaining</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          You have full 5-hour limit remaining.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-4">
+                        <span className="text-[13.5px] font-medium text-white">100%</span>
+                        <CircularProgress percentage={100} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

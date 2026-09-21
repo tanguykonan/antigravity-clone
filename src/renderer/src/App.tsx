@@ -14,32 +14,53 @@ const SIDEBAR_MAX_WIDTH = 460
 const SIDEBAR_DEFAULT_WIDTH = 285
 
 const INITIAL_PROJECTS: Project[] = [
-  { id: 'desktop-llm', name: 'desktop-llm' },
+  {
+    id: 'desktop-llm',
+    name: 'desktop-llm',
+    conversations: [
+      {
+        id: 'c-1',
+        title: "Je veux créer une application desktop inspirée de l'interface d'Antigr...",
+        time: 'now'
+      }
+    ]
+  },
   {
     id: 'SmoothTerminal',
     name: 'SmoothTerminal',
-    lastMessage: 'je veux corriger mon outi...',
-    lastTime: '19h'
+    conversations: [
+      {
+        id: 'c-2',
+        title: 'je veux corriger mon outi...',
+        time: '19h'
+      }
+    ]
   },
-  { id: 'test-box', name: 'test-box' },
-  { id: 'CareerLensWeb', name: 'CareerLensWeb' },
-  { id: 'MyPortfolio', name: 'MyPortfolio' },
-  { id: 'PC-PDL', name: 'PC-PDL' },
-  { id: 'chatbot_medical', name: 'chatbot_medical' },
-  { id: 'CareerLens', name: 'CareerLens' },
-  { id: 'ATSEngine', name: 'ATSEngine' },
-  { id: 'mobile-agent', name: 'mobile-agent' },
-  { id: 'CloudSync', name: 'CloudSync' }
+  { id: 'test-box', name: 'test-box', conversations: [] },
+  { id: 'CareerLensWeb', name: 'CareerLensWeb', conversations: [] },
+  { id: 'MyPortfolio', name: 'MyPortfolio', conversations: [] },
+  { id: 'PC-PDL', name: 'PC-PDL', conversations: [] },
+  { id: 'chatbot_medical', name: 'chatbot_medical', conversations: [] },
+  { id: 'CareerLens', name: 'CareerLens', conversations: [] },
+  { id: 'ATSEngine', name: 'ATSEngine', conversations: [] },
+  { id: 'mobile-agent', name: 'mobile-agent', conversations: [] },
+  { id: 'CloudSync', name: 'CloudSync', conversations: [] }
 ]
 
 export const App: React.FC = () => {
+  const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS)
   const [activeProjectId, setActiveProjectId] = useState<string | null>('desktop-llm')
+  const [activeConversationId, setActiveConversationId] = useState<string | null>('c-1')
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'scheduled-tasks'>('chat')
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
-  const activeProject = INITIAL_PROJECTS.find((p) => p.id === activeProjectId) ?? null
+  const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) ?? null : null
+  const activeConversation =
+    activeProjectId && activeConversationId
+      ? activeProject?.conversations?.find((c) => c.id === activeConversationId) ?? null
+      : null
 
   const handleResize = useCallback((delta: number) => {
     setSidebarWidth((prev) =>
@@ -47,13 +68,49 @@ export const App: React.FC = () => {
     )
   }, [])
 
+  // Option + New Conversation : réinitialise à un chat vide sans projet (rien dans le header)
   const handleNewConversation = () => {
     setActiveProjectId(null)
+    setActiveConversationId(null)
     setActiveView('chat')
   }
 
+  // Sélection d'un projet uniquement (ne sélectionne pas forcément un chat)
   const handleSelectProject = (id: string) => {
     setActiveProjectId(id)
+    setActiveConversationId(null)
+    setActiveView('chat')
+  }
+
+  // Sélection d'une conversation spécifique d'un projet
+  const handleSelectConversation = (projectId: string, conversationId: string) => {
+    setActiveProjectId(projectId)
+    setActiveConversationId(conversationId)
+    setActiveView('chat')
+  }
+
+  // Création d'un nouveau chat dans un projet via le bouton (+)
+  const handleCreateChatInProject = (projectId: string) => {
+    const newConv = {
+      id: `c-${Date.now()}`,
+      title: 'New conversation',
+      time: 'Just now'
+    }
+
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id === projectId) {
+          return {
+            ...p,
+            conversations: [newConv, ...(p.conversations || [])]
+          }
+        }
+        return p
+      })
+    )
+
+    setActiveProjectId(projectId)
+    setActiveConversationId(newConv.id)
     setActiveView('chat')
   }
 
@@ -89,11 +146,14 @@ export const App: React.FC = () => {
             className="h-full flex flex-col flex-shrink-0 overflow-hidden"
           >
             <Sidebar
-              projects={INITIAL_PROJECTS}
+              projects={projects}
               activeProjectId={activeProjectId}
+              activeConversationId={activeConversationId}
               activeView={activeView}
               onSelectProject={handleSelectProject}
+              onSelectConversation={handleSelectConversation}
               onNewConversation={handleNewConversation}
+              onCreateChatInProject={handleCreateChatInProject}
               onSelectView={setActiveView}
               onToggleSidebar={() => setSidebarOpen(false)}
             />
@@ -103,9 +163,10 @@ export const App: React.FC = () => {
 
         {/* Main area — s'élargit en plein écran avec fluidité */}
         <main className="flex-1 flex flex-col bg-bg-base overflow-hidden">
-          {/* Header de travail : affiche le breadcrumb à gauche + toggle droit intact. En plein écran (!sidebarOpen), affiche aussi Logo A + [|] + < + > */}
+          {/* Header de travail : affiche le breadcrumb 'Projet / Titre' si sélectionné, sinon rien */}
           <WorkspaceHeader
             projectName={activeProject?.name}
+            conversationTitle={activeConversation?.title}
             showNavControls={!sidebarOpen}
             onToggleSidebar={() => setSidebarOpen(true)}
           />
@@ -116,12 +177,24 @@ export const App: React.FC = () => {
             ) : activeView === 'history' ? (
               <ConversationHistoryView
                 onSelectConversation={(entry) => {
-                  setActiveProjectId(entry.projectName)
+                  const targetProject = projects.find((p) => p.name === entry.projectName)
+                  if (targetProject) {
+                    setActiveProjectId(targetProject.id)
+                    const targetConv = targetProject.conversations?.find((c) => c.title === entry.title)
+                    if (targetConv) {
+                      setActiveConversationId(targetConv.id)
+                    } else {
+                      setActiveConversationId(null)
+                    }
+                  } else {
+                    setActiveProjectId(null)
+                    setActiveConversationId(null)
+                  }
                   setActiveView('chat')
                 }}
               />
             ) : (
-              <ChatInput projectName={activeProject?.name ?? 'desktop-llm'} />
+              <ChatInput projectName={activeProject?.name ?? null} />
             )}
           </div>
         </main>

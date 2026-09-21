@@ -4,13 +4,19 @@ import appLogo from '../../assets/logo.png'
 import { ProjectsFilterMenu } from './ProjectsFilterMenu'
 import { ProjectOptionsMenu } from './ProjectOptionsMenu'
 
+export interface ConversationItem {
+  id: string
+  title: string
+  time?: string
+  lastMessage?: string
+}
+
 export interface ProjectItem {
   id: string
   name: string
-  isActive?: boolean
+  conversations?: ConversationItem[]
   lastMessage?: string
   lastTime?: string
-  conversations?: { id: string; title: string; time: string; isActive?: boolean }[]
 }
 
 export type Project = ProjectItem
@@ -18,9 +24,12 @@ export type Project = ProjectItem
 interface SidebarProps {
   projects: ProjectItem[]
   activeProjectId: string | null
+  activeConversationId: string | null
   activeView: 'chat' | 'history' | 'scheduled-tasks'
   onSelectProject: (id: string) => void
+  onSelectConversation: (projectId: string, conversationId: string) => void
   onNewConversation: () => void
+  onCreateChatInProject: (projectId: string) => void
   onSelectView: (view: 'chat' | 'history' | 'scheduled-tasks') => void
   onToggleSidebar?: () => void
 }
@@ -28,9 +37,12 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   projects,
   activeProjectId,
+  activeConversationId,
   activeView,
   onSelectProject,
+  onSelectConversation,
   onNewConversation,
+  onCreateChatInProject,
   onSelectView,
   onToggleSidebar
 }) => {
@@ -315,7 +327,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      onNewConversation()
+                      onCreateChatInProject(project.id)
                     }}
                     className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[#8a8c87] hover:text-white transition-colors cursor-pointer"
                     data-tooltip="New chat in project"
@@ -326,27 +338,78 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
 
-              {/* Sous-élément de conversation */}
-              {project.lastMessage && (
+              {/* Sous-éléments de conversation */}
+              {project.conversations && project.conversations.length > 0 ? (
+                <div className="flex flex-col space-y-0.5">
+                  {project.conversations.map((conv) => {
+                    const isConvActive =
+                      activeProjectId === project.id && activeConversationId === conv.id
+
+                    return (
+                      <div
+                        key={conv.id}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onSelectConversation(project.id, conv.id)
+                        }}
+                        className={`flex items-center justify-between py-1 px-2.5 my-0.5 rounded-md cursor-pointer transition-colors duration-150 select-none ${
+                          isConvActive
+                            ? 'bg-white/[0.04] text-[#eceee9]'
+                            : 'text-[#8a8c87] hover:bg-white/[0.025] hover:text-[#c5c7c2]'
+                        }`}
+                        style={{
+                          marginLeft: '22px',
+                          marginRight: '4px'
+                        }}
+                      >
+                        <span
+                          className="truncate flex-1 font-normal"
+                          style={{
+                            fontSize: '12.5px',
+                            color: isConvActive ? '#eceee9' : undefined
+                          }}
+                        >
+                          {conv.title}
+                        </span>
+                        {conv.time && (
+                          <span
+                            className={`px-1 py-0.5 rounded text-[10px] font-mono ml-2 flex-shrink-0 transition-colors ${
+                              isConvActive
+                                ? 'text-[#a0a29c]'
+                                : 'text-[#6f716c]'
+                            }`}
+                          >
+                            {conv.time}
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : project.lastMessage ? (
                 <div
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSelectProject(project.id)
+                  }}
                   className="flex items-center justify-between py-1.5 px-2 my-0.5 rounded-md cursor-pointer transition-all duration-150 hover:bg-white/[0.04] group/sub"
-                  style={{ marginLeft: '24px', marginRight: '4px', color: '#8a8c87' }}
+                  style={{ marginLeft: '22px', marginRight: '4px', color: '#8a8c87' }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8c87')}
                 >
                   <span
                     className="truncate flex-1 font-normal"
-                    style={{ fontSize: '13px' }}
+                    style={{ fontSize: '12.5px' }}
                   >
                     {project.lastMessage}
                   </span>
                   {project.lastTime && (
-                    <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/5 text-[11px] font-mono text-[#7a7c78] group-hover/sub:text-[#a8aaa4] transition-colors ml-2 flex-shrink-0">
+                    <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/5 text-[10.5px] font-mono text-[#7a7c78] group-hover/sub:text-[#a8aaa4] transition-colors ml-2 flex-shrink-0">
                       {project.lastTime}
                     </span>
                   )}
                 </div>
-              )}
+              ) : null}
             </div>
           )
         })}

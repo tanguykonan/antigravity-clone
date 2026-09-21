@@ -65,13 +65,13 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
           </div>
         )}
 
-        {/* Breadcrumb projet (inchangé) */}
+        {/* Breadcrumb projet : Nom du projet / Titre du chat */}
         {projectName && (
           <span style={{ fontSize: '13px', color: '#9e9e9a', fontWeight: 400 }}>
             {projectName}
           </span>
         )}
-        {conversationTitle && (
+        {projectName && conversationTitle && (
           <>
             <span style={{ color: '#555852', fontSize: '13px' }}>/</span>
             <span

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { X, ChevronDown, Info, Check, Paperclip } from 'lucide-react'
+import { X, ChevronDown, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw } from 'lucide-react'
 import { llmManager } from '../../services/llm/LLMManager'
 
 export type SettingsTab =
@@ -153,6 +153,41 @@ const CustomSelect: React.FC<{
   )
 }
 
+// ── Composant Ligne de sélection de couleur (Hex + swatch tactile) ──
+const ColorPickerRow: React.FC<{
+  label: string
+  color: string
+  onChange: (color: string) => void
+}> = ({ label, color, onChange }) => {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const hexValue = color.replace(/^#/, '').toUpperCase()
+
+  return (
+    <div className="p-3.5 px-4 flex items-center justify-between">
+      <span className="font-normal text-white text-[13.5px]">{label}</span>
+      <div
+        onClick={() => inputRef.current?.click()}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#181a16] border border-[#2e302b] hover:border-white/20 transition-colors cursor-pointer select-none"
+      >
+        <input
+          ref={inputRef}
+          type="color"
+          value={color.startsWith('#') ? color : `#${color}`}
+          onChange={(e) => onChange(e.target.value.toUpperCase())}
+          className="sr-only"
+        />
+        <div
+          className="w-4 h-4 rounded-[4px] border border-black/30 flex-shrink-0"
+          style={{ backgroundColor: color }}
+        />
+        <span className="text-[12.5px] font-mono text-[#dcded9]">
+          # {hexValue}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
@@ -172,8 +207,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [artifactReviewPolicy, setArtifactReviewPolicy] = useState('Always Ask')
   const [autoUpdate, setAutoUpdate] = useState(true)
   const [launchAtLogin, setLaunchAtLogin] = useState(false)
-  const [themeMode, setThemeMode] = useState<'dark' | 'system' | 'light'>('dark')
-  const [interfaceScale, setInterfaceScale] = useState('100%')
+
+  // Appearance tab state
+  const [appearanceTheme, setAppearanceTheme] = useState<'system' | 'light' | 'dark'>('system')
+  const [contrastMode, setContrastMode] = useState<'default' | 'strong'>('default')
+  const [lightPreset, setLightPreset] = useState('Default Light')
+  const [lightBg, setLightBg] = useState('#EEEEEE')
+  const [lightFg, setLightFg] = useState('#101010')
+  const [lightAccent, setLightAccent] = useState('#007ACC')
+  const [darkPreset, setDarkPreset] = useState('Default Dark')
+  const [darkBg, setDarkBg] = useState('#101010')
+  const [darkFg, setDarkFg] = useState('#EEEEEE')
+  const [darkAccent, setDarkAccent] = useState('#007ACC')
+
   const [feedbackCategory, setFeedbackCategory] = useState('Bug Report')
   const [feedbackText, setFeedbackText] = useState('')
   const [feedbackSteps, setFeedbackSteps] = useState('')
@@ -425,7 +471,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {activeTab === 'Application' &&
                     'Manage system behavior, updates, startup preferences, and storage.'}
                   {activeTab === 'Appearance' &&
-                    'Customize the user interface theme, typography, and scaling.'}
+                    "Configure the agent's visual theme and display preferences."}
                   {activeTab === 'Models' &&
                     'Configure local & cloud AI providers, models, and API tokens.'}
                   {activeTab === 'Customizations' &&
@@ -743,54 +789,221 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* ─────────── 3. APPEARANCE ─────────── */}
             {activeTab === 'Appearance' && (
-              <div className="space-y-6 pt-1">
+              <div className="space-y-6 pt-1 max-w-2xl">
+                {/* Section Appearance (Theme & Contrast) */}
                 <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Theme Mode</h3>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { id: 'dark', label: 'Dark (Default)', desc: 'Pure carbon theme' },
-                      { id: 'system', label: 'System', desc: 'Sync with OS setting' },
-                      { id: 'light', label: 'Light', desc: 'Classic bright theme' }
-                    ].map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setThemeMode(item.id as any)}
-                        className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                          themeMode === item.id
-                            ? 'bg-white/10 border-white/20 text-white'
-                            : 'bg-[#1c1e1a]/60 border-[#282a26] text-[#8e9089] hover:border-white/15 hover:text-white'
-                        }`}
+                  <h3 className="text-[13px] font-medium text-white mb-2">Appearance</h3>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    {/* Theme selector */}
+                    <div className="p-3.5 px-4 flex items-center justify-between">
+                      <span className="font-medium text-white text-[13.5px]">Theme</span>
+                      <div
+                        className="flex p-0.5 rounded-lg"
+                        style={{
+                          backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                          border: '1px solid rgba(255, 255, 255, 0.06)'
+                        }}
                       >
-                        <div className="font-medium text-[13px] text-white">{item.label}</div>
-                        <div className="text-[11.5px] text-[#7a7c78] mt-1">{item.desc}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Scaling & Display</h3>
-                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
-                    <div>
-                      <div className="font-medium text-white text-[13.5px]">Interface Scale</div>
-                      <div className="text-[12px] text-[#8e9089] mt-0.5">
-                        Adjust text size and UI proportions.
+                        <button
+                          type="button"
+                          onClick={() => setAppearanceTheme('system')}
+                          className={`p-1.5 px-2.5 rounded-md transition-all cursor-pointer ${
+                            appearanceTheme === 'system'
+                              ? 'bg-[#383a35] text-white shadow-sm'
+                              : 'text-[#8e9089] hover:text-white'
+                          }`}
+                          title="System theme"
+                        >
+                          <Monitor size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAppearanceTheme('light')}
+                          className={`p-1.5 px-2.5 rounded-md transition-all cursor-pointer ${
+                            appearanceTheme === 'light'
+                              ? 'bg-[#383a35] text-white shadow-sm'
+                              : 'text-[#8e9089] hover:text-white'
+                          }`}
+                          title="Light theme"
+                        >
+                          <Sun size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAppearanceTheme('dark')}
+                          className={`p-1.5 px-2.5 rounded-md transition-all cursor-pointer ${
+                            appearanceTheme === 'dark'
+                              ? 'bg-[#383a35] text-white shadow-sm'
+                              : 'text-[#8e9089] hover:text-white'
+                          }`}
+                          title="Dark theme"
+                        >
+                          <Moon size={14} />
+                        </button>
                       </div>
                     </div>
 
-                    <div className="w-44">
-                      <CustomSelect
-                        value={interfaceScale}
-                        options={[
-                          { value: '90%', label: '90%' },
-                          { value: '100%', label: '100% (Default)' },
-                          { value: '110%', label: '110%' },
-                          { value: '125%', label: '125%' }
-                        ]}
-                        onChange={setInterfaceScale}
-                      />
+                    {/* Contrast selector */}
+                    <div className="p-3.5 px-4 flex items-center justify-between">
+                      <span className="font-medium text-white text-[13.5px]">Contrast</span>
+                      <div
+                        className="flex p-0.5 rounded-lg"
+                        style={{
+                          backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                          border: '1px solid rgba(255, 255, 255, 0.06)'
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setContrastMode('default')}
+                          className={`px-3 py-1 rounded-md text-[12.5px] transition-all cursor-pointer ${
+                            contrastMode === 'default'
+                              ? 'bg-[#383a35] text-white font-medium shadow-sm'
+                              : 'text-[#8e9089] hover:text-white'
+                          }`}
+                        >
+                          Default
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setContrastMode('strong')}
+                          className={`px-3 py-1 rounded-md text-[12.5px] transition-all cursor-pointer ${
+                            contrastMode === 'strong'
+                              ? 'bg-[#383a35] text-white font-medium shadow-sm'
+                              : 'text-[#8e9089] hover:text-white'
+                          }`}
+                        >
+                          Strong
+                        </button>
+                      </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Section Light Theme */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Light Theme</h3>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    {/* Preset row */}
+                    <div className="p-3.5 px-4 flex items-center justify-between">
+                      <span className="font-medium text-white text-[13.5px]">Preset</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLightBg('#EEEEEE')
+                            setLightFg('#101010')
+                            setLightAccent('#007ACC')
+                            setLightPreset('Default Light')
+                          }}
+                          className="p-1.5 rounded-md text-[#7a7c78] hover:text-white transition-colors cursor-pointer"
+                          title="Reset to default"
+                        >
+                          <RotateCcw size={13.5} />
+                        </button>
+                        <div className="w-44">
+                          <CustomSelect
+                            value={lightPreset}
+                            options={[
+                              { value: 'Default Light', label: 'Default Light' },
+                              { value: 'Solarized Light', label: 'Solarized Light' },
+                              { value: 'Quiet Light', label: 'Quiet Light' }
+                            ]}
+                            onChange={(val) => {
+                              setLightPreset(val)
+                              if (val === 'Default Light') {
+                                setLightBg('#EEEEEE')
+                                setLightFg('#101010')
+                                setLightAccent('#007ACC')
+                              } else if (val === 'Solarized Light') {
+                                setLightBg('#FDF6E3')
+                                setLightFg('#657B83')
+                                setLightAccent('#268BD2')
+                              } else if (val === 'Quiet Light') {
+                                setLightBg('#F5F5F5')
+                                setLightFg('#333333')
+                                setLightAccent('#7A3E9D')
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Background */}
+                    <ColorPickerRow label="Background" color={lightBg} onChange={setLightBg} />
+
+                    {/* Foreground */}
+                    <ColorPickerRow label="Foreground" color={lightFg} onChange={setLightFg} />
+
+                    {/* Accent */}
+                    <ColorPickerRow label="Accent" color={lightAccent} onChange={setLightAccent} />
+                  </div>
+                </div>
+
+                {/* Section Dark Theme */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Dark Theme</h3>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    {/* Preset row */}
+                    <div className="p-3.5 px-4 flex items-center justify-between">
+                      <span className="font-medium text-white text-[13.5px]">Preset</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDarkBg('#101010')
+                            setDarkFg('#EEEEEE')
+                            setDarkAccent('#007ACC')
+                            setDarkPreset('Default Dark')
+                          }}
+                          className="p-1.5 rounded-md text-[#7a7c78] hover:text-white transition-colors cursor-pointer"
+                          title="Reset to default"
+                        >
+                          <RotateCcw size={13.5} />
+                        </button>
+                        <div className="w-44">
+                          <CustomSelect
+                            value={darkPreset}
+                            options={[
+                              { value: 'Default Dark', label: 'Default Dark' },
+                              { value: 'Progravity Dark', label: 'Progravity Dark' },
+                              { value: 'Monokai', label: 'Monokai' },
+                              { value: 'Dracula', label: 'Dracula' }
+                            ]}
+                            onChange={(val) => {
+                              setDarkPreset(val)
+                              if (val === 'Default Dark') {
+                                setDarkBg('#101010')
+                                setDarkFg('#EEEEEE')
+                                setDarkAccent('#007ACC')
+                              } else if (val === 'Progravity Dark') {
+                                setDarkBg('#151613')
+                                setDarkFg('#DCDED9')
+                                setDarkAccent('#E91E63')
+                              } else if (val === 'Monokai') {
+                                setDarkBg('#272822')
+                                setDarkFg('#F8F8F2')
+                                setDarkAccent('#A6E22E')
+                              } else if (val === 'Dracula') {
+                                setDarkBg('#282A36')
+                                setDarkFg('#F8F8F2')
+                                setDarkAccent('#BD93F9')
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Background */}
+                    <ColorPickerRow label="Background" color={darkBg} onChange={setDarkBg} />
+
+                    {/* Foreground */}
+                    <ColorPickerRow label="Foreground" color={darkFg} onChange={setDarkFg} />
+
+                    {/* Accent */}
+                    <ColorPickerRow label="Accent" color={darkAccent} onChange={setDarkAccent} />
                   </div>
                 </div>
               </div>

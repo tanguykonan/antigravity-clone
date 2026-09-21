@@ -7,6 +7,7 @@ export function createMainWindow(): BrowserWindow {
     height: 800,
     minWidth: 960,
     minHeight: 600,
+    icon: join(__dirname, '../../resources/myicon.png'),
     show: false,
     frame: false,          // Supprime la barre native Windows — on gère notre propre titlebar
     autoHideMenuBar: true,

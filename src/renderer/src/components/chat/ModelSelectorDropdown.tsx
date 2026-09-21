@@ -112,31 +112,16 @@ export const ModelSelectorDropdown: React.FC<ModelSelectorDropdownProps> = ({
 
     // ── Décision de positionnement naturel & intelligente ──
     // 1. Si l'espace en bas est suffisant -> ouvrir vers le BAS (naturel)
-    // 2. Si l'espace en bas est insuffisant mais que l'espace en haut suffit -> FLIP vers le HAUT
-    // 3. Si les deux sont restreints -> choisir le côté ayant le plus d'espace
+    // 2. Si l'espace en bas est insuffisant -> ouvrir vers le HAUT
     if (spaceBelow >= requiredSpace) {
       placement = 'bottom'
       maxHeight = Math.min(spaceBelow - 6, 380)
       top = anchorRect.bottom + 6
-    } else if (spaceAbove >= requiredSpace) {
+    } else {
       placement = 'top'
       maxHeight = Math.min(spaceAbove - 6, 380)
-      const targetHeight = Math.min(menuHeight, maxHeight)
-      top = anchorRect.top - targetHeight - 6
-    } else {
-      if (spaceBelow >= spaceAbove) {
-        placement = 'bottom'
-        maxHeight = Math.max(120, spaceBelow - 6)
-        top = anchorRect.bottom + 6
-      } else {
-        placement = 'top'
-        maxHeight = Math.max(120, spaceAbove - 6)
-        top = anchorRect.top - maxHeight - 6
-      }
+      top = anchorRect.top - 6
     }
-
-    // Clamp de sécurité pour garantir qu'aucun pixel ne sort de la fenêtre
-    top = Math.max(8, Math.min(viewportHeight - maxHeight - 8, top))
 
     // Positionnement horizontal avec alignement naturel et clamp bord d'écran
     let left = anchorRect.left
@@ -212,7 +197,8 @@ export const ModelSelectorDropdown: React.FC<ModelSelectorDropdownProps> = ({
       className="fixed select-none z-[99999] animate-in fade-in zoom-in-95 duration-100 flex flex-col"
       style={{
         width: '260px',
-        top: position ? `${position.top}px` : '-9999px',
+        top: position ? (position.placement === 'bottom' ? `${position.top}px` : 'auto') : '-9999px',
+        bottom: position ? (position.placement === 'top' ? `${window.innerHeight - position.top}px` : 'auto') : 'auto',
         left: position ? `${position.left}px` : '-9999px',
         maxHeight: position ? `${position.maxHeight}px` : '380px',
         backgroundColor: '#222420',

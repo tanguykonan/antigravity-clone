@@ -1,6 +1,7 @@
-import React from 'react'
-import { Plus, History, CalendarClock, Folder, Settings, SlidersHorizontal, FolderPlus, ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+import { Plus, History, CalendarClock, Folder, Settings, FolderPlus, ChevronLeft, ChevronRight } from 'lucide-react'
 import appLogo from '../../assets/logo.png'
+import { ProjectsFilterMenu } from './ProjectsFilterMenu'
 
 export interface ProjectItem {
   id: string
@@ -32,6 +33,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectView,
   onToggleSidebar
 }) => {
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
+  const filterButtonRef = useRef<HTMLButtonElement>(null)
+
   return (
     <aside
       className="flex flex-col select-none h-full w-full overflow-hidden"
@@ -174,26 +178,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* ── Projects Header ── */}
-      <div className="flex items-center justify-between pl-3 pr-0 pt-3 pb-1 flex-shrink-0">
+      <div className="relative flex items-center justify-between pl-3 pr-0 pt-3 pb-1 flex-shrink-0">
         <span style={{ fontSize: '13px', fontWeight: 500, color: '#8a8c87' }}>Projects</span>
         <div className="flex items-center gap-1">
           <button
-            className="w-6 h-6 flex items-center justify-center rounded transition-colors"
-            style={{ color: '#7a7c78' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
-            data-tooltip="Filter"
-            data-tooltip-side="bottom"
+            ref={filterButtonRef}
+            onClick={() => setIsFilterMenuOpen((prev) => !prev)}
+            className={`w-6 h-6 flex items-center justify-center rounded transition-all cursor-pointer ${
+              isFilterMenuOpen
+                ? 'bg-white/10 text-white'
+                : 'text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04]'
+            }`}
+            data-tooltip={isFilterMenuOpen ? undefined : 'Display Options'}
+            data-tooltip-side="top"
           >
-            <SlidersHorizontal size={13} />
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M1 3.5a.75.75 0 0 1 .75-.75h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 3.5zm2.5 4.5a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H4.25A.75.75 0 0 1 3.5 8zm3 4.5a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5H7.25a.75.75 0 0 1-.75-.75z" />
+            </svg>
           </button>
           <button
-            className="w-6 h-6 flex items-center justify-center rounded transition-colors"
-            style={{ color: '#7a7c78' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#c5c7c2')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#7a7c78')}
-            data-tooltip="New Folder"
-            data-tooltip-side="bottom"
+            className="w-6 h-6 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-white/[0.04] cursor-pointer"
+            data-tooltip="Create New Project"
+            data-tooltip-side="top"
           >
             <FolderPlus size={14} />
           </button>
@@ -204,6 +210,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </svg>
           </div>
         </div>
+
+        {/* ── Popover Bulle Filter Menu ── */}
+        <ProjectsFilterMenu
+          isOpen={isFilterMenuOpen}
+          onClose={() => setIsFilterMenuOpen(false)}
+          anchorRef={filterButtonRef}
+        />
       </div>
 
       {/* ── Project List avec Scrollbar personnalisée à coins arrondis ── */}

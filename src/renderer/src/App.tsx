@@ -8,6 +8,7 @@ import { ConversationHistoryView } from './components/history/ConversationHistor
 import { ChatInput } from './components/chat/ChatInput'
 import { CommandPalette } from './components/palette/CommandPalette'
 import { TooltipProvider } from './components/ui/Tooltip'
+import { OnboardingView } from './components/auth/OnboardingView'
 
 const SIDEBAR_MIN_WIDTH = 270
 const SIDEBAR_MAX_WIDTH = 460
@@ -48,6 +49,9 @@ const INITIAL_PROJECTS: Project[] = [
 ]
 
 export const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    () => localStorage.getItem('desktop_llm_authenticated') === 'true'
+  )
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS)
   const [activeProjectId, setActiveProjectId] = useState<string | null>('desktop-llm')
   const [lastSelectedProjectId, setLastSelectedProjectId] = useState<string>('desktop-llm')
@@ -164,6 +168,24 @@ export const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col h-screen w-screen bg-[#151613] text-text-primary overflow-hidden">
+        {/* Title bar pour contrôle fenêtre & déplacement */}
+        <TitleBar onOpenCommandPalette={() => {}} />
+        <div className="flex-1 overflow-hidden">
+          <OnboardingView
+            onLoginSuccess={(provider) => {
+              localStorage.setItem('desktop_llm_authenticated', 'true')
+              localStorage.setItem('desktop_llm_auth_provider', provider)
+              setIsAuthenticated(true)
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-screen w-screen bg-bg-base text-text-primary overflow-hidden">

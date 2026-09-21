@@ -45,8 +45,7 @@ const INITIAL_PROJECTS: Project[] = [
   { id: 'chatbot_medical', name: 'chatbot_medical', conversations: [] },
   { id: 'CareerLens', name: 'CareerLens', conversations: [] },
   { id: 'ATSEngine', name: 'ATSEngine', conversations: [] },
-  { id: 'mobile-agent', name: 'mobile-agent', conversations: [] },
-  { id: 'CloudSync', name: 'CloudSync', conversations: [] }
+  { id: 'mobile-agent', name: 'mobile-agent', conversations: [] }
 ]
 
 export const App: React.FC = () => {

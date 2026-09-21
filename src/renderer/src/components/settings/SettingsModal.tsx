@@ -316,8 +316,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               })}
             </div>
 
+            {/* Séparateur sobre & pro */}
+            <div className="my-1 px-1">
+              <div className="h-px bg-[#282a26]" />
+            </div>
+
             {/* Section Shortcuts & Feedback */}
-            <div className="space-y-0.5 pt-1">
+            <div className="space-y-0.5">
               {['Shortcuts', 'Provide Feedback'].map((item) => {
                 const isActive = activeTab === item
                 return (

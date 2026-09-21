@@ -194,6 +194,7 @@ export const App: React.FC = () => {
               onNewConversation={handleNewConversation}
               onCreateChatInProject={handleCreateChatInProject}
               onDeleteConversation={handleDeleteConversation}
+              onReorderProjects={setProjects}
               onSelectView={setActiveView}
               onToggleSidebar={() => setSidebarOpen(false)}
             />

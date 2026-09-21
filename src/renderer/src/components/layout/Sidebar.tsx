@@ -32,8 +32,15 @@ interface SidebarProps {
   onNewConversation: () => void
   onCreateChatInProject: (projectId: string) => void
   onDeleteConversation?: (projectId: string, conversationId: string) => void
+  onReorderProjects?: (projects: ProjectItem[]) => void
   onSelectView: (view: 'chat' | 'history' | 'scheduled-tasks') => void
   onToggleSidebar?: () => void
+}
+
+interface DragState {
+  draggedId: string
+  targetId: string | null
+  position: 'above' | 'below' | null
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -46,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewConversation,
   onCreateChatInProject,
   onDeleteConversation,
+  onReorderProjects,
   onSelectView,
   onToggleSidebar
 }) => {
@@ -55,9 +63,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [expandedProjectIds, setExpandedProjectIds] = useState<Set<string>>(
     new Set(['desktop-llm', 'SmoothTerminal'])
   )
+  const [dragState, setDragState] = useState<DragState | null>(null)
+
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const projectButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
   const convButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+  const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const floatingRef = useRef<HTMLDivElement | null>(null)
+  const dragStartPos = useRef<{ x: number; y: number; id: string } | null>(null)
+  const didDragRef = useRef(false)
+  const cachedRects = useRef<Array<{ id: string; top: number; bottom: number; midY: number }>>([])
+  const lastTargetRef = useRef<{ id: string | null; pos: 'above' | 'below' | null }>({ id: null, pos: null })
 
   const handleToggleExpand = (projectId: string) => {
     setExpandedProjectIds((prev) => {
@@ -70,6 +86,130 @@ export const Sidebar: React.FC<SidebarProps> = ({
       return next
     })
   }
+
+  const handlePointerDown = (e: React.PointerEvent, projectId: string) => {
+    if ((e.target as HTMLElement).closest('button')) return
+    if (e.button !== 0) return
+
+    dragStartPos.current = { x: e.clientX, y: e.clientY, id: projectId }
+    didDragRef.current = false
+    lastTargetRef.current = { id: null, pos: null }
+
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      if (!dragStartPos.current) return
+
+      const dx = moveEvent.clientX - dragStartPos.current.x
+      const dy = moveEvent.clientY - dragStartPos.current.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+
+      if (dist > 3) {
+        if (!didDragRef.current) {
+          didDragRef.current = true
+          document.body.style.cursor = 'grabbing'
+          document.body.style.userSelect = 'none'
+
+          // Mesure unique des positions de tous les projets au démarrage du drag (0 layout thrashing pendant le mouvement)
+          cachedRects.current = projects
+            .map((p) => {
+              const el = itemRefs.current[p.id]
+              if (!el) return null
+              const r = el.getBoundingClientRect()
+              return { id: p.id, top: r.top, bottom: r.bottom, midY: r.top + r.height / 2 }
+            })
+            .filter((item): item is { id: string; top: number; bottom: number; midY: number } => item !== null)
+
+          setDragState({
+            draggedId: dragStartPos.current.id,
+            targetId: null,
+            position: null
+          })
+        }
+
+        // Déplacement direct GPU (120 FPS) sans re-render React du composant complet
+        if (floatingRef.current) {
+          floatingRef.current.style.transform = `translate3d(${moveEvent.clientX + 14}px, ${moveEvent.clientY - 16}px, 0) rotate(2deg) scale(1.02)`
+        }
+
+        const mouseY = moveEvent.clientY
+        let foundTargetId: string | null = null
+        let foundPos: 'above' | 'below' = 'below'
+
+        for (const item of cachedRects.current) {
+          if (mouseY >= item.top && mouseY <= item.bottom) {
+            foundTargetId = item.id
+            foundPos = mouseY < item.midY ? 'above' : 'below'
+            break
+          }
+        }
+
+        if (!foundTargetId && cachedRects.current.length > 0) {
+          const first = cachedRects.current[0]
+          const last = cachedRects.current[cachedRects.current.length - 1]
+          if (mouseY < first.top) {
+            foundTargetId = first.id
+            foundPos = 'above'
+          } else if (mouseY > last.bottom) {
+            foundTargetId = last.id
+            foundPos = 'below'
+          }
+        }
+
+        // Re-render React UNIQUEMENT lorsque la case cible change (réduit de 120 renders/sec à 1 render)
+        if (
+          foundTargetId !== lastTargetRef.current.id ||
+          foundPos !== lastTargetRef.current.pos
+        ) {
+          lastTargetRef.current = { id: foundTargetId, pos: foundPos }
+          setDragState({
+            draggedId: dragStartPos.current.id,
+            targetId: foundTargetId,
+            position: foundPos
+          })
+        }
+      }
+    }
+
+    const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+
+      if (didDragRef.current && dragStartPos.current) {
+        const draggedId = dragStartPos.current.id
+        const targetId = lastTargetRef.current.id
+        const position = lastTargetRef.current.pos
+
+        if (targetId && targetId !== draggedId && position && onReorderProjects) {
+          const fromIdx = projects.findIndex((p) => p.id === draggedId)
+          const toIdx = projects.findIndex((p) => p.id === targetId)
+
+          if (fromIdx !== -1 && toIdx !== -1) {
+            const updated = [...projects]
+            const [moved] = updated.splice(fromIdx, 1)
+            const targetIdxInNew = updated.findIndex((p) => p.id === targetId)
+            const insertIdx = position === 'above' ? targetIdxInNew : targetIdxInNew + 1
+            updated.splice(Math.max(0, Math.min(updated.length, insertIdx)), 0, moved)
+            onReorderProjects(updated)
+          }
+        }
+      }
+
+      setDragState(null)
+      cachedRects.current = []
+      dragStartPos.current = null
+      lastTargetRef.current = { id: null, pos: null }
+
+      setTimeout(() => {
+        didDragRef.current = false
+      }, 50)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+  }
+
+  const draggedProjectItem = projects.find((p) => p.id === dragState?.draggedId)
 
   return (
     <aside
@@ -258,15 +398,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="sidebar-scrollbar flex-1 overflow-y-auto px-2 space-y-1">
         {projects.map((project) => {
           const isActive = project.id === activeProjectId
+          const isBeingDragged = dragState?.draggedId === project.id
+          const isDropTarget = dragState?.targetId === project.id && dragState?.draggedId !== project.id
+          const showLineAbove = isDropTarget && dragState?.position === 'above'
+          const showLineBelow = isDropTarget && dragState?.position === 'below'
+
           return (
-            <div key={project.id} className="flex flex-col">
+            <div
+              key={project.id}
+              ref={(el) => {
+                itemRefs.current[project.id] = el
+              }}
+              className="flex flex-col relative transition-opacity duration-150"
+              style={{
+                opacity: isBeingDragged ? 0.35 : 1
+              }}
+            >
+              {/* Ligne d'insertion au-dessus (style macOS Finder avec rond indicateur) */}
+              {showLineAbove && (
+                <div className="flex items-center my-0.5 px-0.5 pointer-events-none animate-in fade-in duration-100">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#007aff] shadow-[0_0_8px_rgba(0,122,255,1)] flex-shrink-0" />
+                  <div className="h-[2px] bg-[#007aff] flex-1 rounded-r-full shadow-[0_0_8px_rgba(0,122,255,0.8)]" />
+                </div>
+              )}
+
               {/* Ligne principale du projet */}
               <div
+                onPointerDown={(e) => handlePointerDown(e, project.id)}
                 onClick={() => {
+                  if (didDragRef.current) return
                   onSelectProject(project.id)
                   handleToggleExpand(project.id)
                 }}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 cursor-pointer group select-none"
+                className="project-header-row w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 cursor-grab active:cursor-grabbing group select-none"
                 style={{
                   height: 36,
                   backgroundColor: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
@@ -291,7 +455,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 }}
               >
-                <div className="flex items-center gap-2.5 truncate flex-1 min-w-0">
+                <div className="flex items-center gap-2.5 truncate flex-1 min-w-0 pointer-events-none">
                   <Folder
                     size={16}
                     strokeWidth={1.6}
@@ -471,6 +635,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   )}
                 </div>
               ) : null}
+
+              {/* Ligne d'insertion en-dessous (style macOS Finder avec rond indicateur) */}
+              {showLineBelow && (
+                <div className="flex items-center my-0.5 px-0.5 pointer-events-none animate-in fade-in duration-100">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#007aff] shadow-[0_0_8px_rgba(0,122,255,1)] flex-shrink-0" />
+                  <div className="h-[2px] bg-[#007aff] flex-1 rounded-r-full shadow-[0_0_8px_rgba(0,122,255,0.8)]" />
+                </div>
+              )}
             </div>
           )
         })}
@@ -533,6 +705,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </span>
         </button>
       </div>
+
+      {/* ── Badge flottant ultra-fluide suivant le curseur pendant le drag (style macOS) ── */}
+      {dragState && draggedProjectItem && (
+        <div
+          ref={floatingRef}
+          className="fixed pointer-events-none z-[9999] flex items-center gap-2.5 px-3 py-2 rounded-lg select-none"
+          style={{
+            left: 0,
+            top: 0,
+            willChange: 'transform',
+            backgroundColor: 'rgba(34, 36, 32, 0.96)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 16px 36px rgba(0, 0, 0, 0.75), 0 4px 12px rgba(0, 0, 0, 0.5)'
+          }}
+        >
+          <Folder size={16} strokeWidth={1.8} style={{ color: '#007aff' }} />
+          <span style={{ fontSize: '13.5px', fontWeight: 500, color: '#ffffff' }}>
+            {draggedProjectItem.name}
+          </span>
+        </div>
+      )}
     </aside>
   )
 }

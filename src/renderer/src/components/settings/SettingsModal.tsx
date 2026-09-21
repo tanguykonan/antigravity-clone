@@ -279,6 +279,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [queuedMessagesMode, setQueuedMessagesMode] = useState<'queue' | 'immediate'>('queue')
   const [securityPreset, setSecurityPreset] = useState('Default')
   const [artifactReviewPolicy, setArtifactReviewPolicy] = useState('Always Ask')
+  const [browserJsExecutionPolicy, setBrowserJsExecutionPolicy] = useState('Request Review')
   const [autoUpdate, setAutoUpdate] = useState(true)
   const [launchAtLogin, setLaunchAtLogin] = useState(false)
 
@@ -707,8 +708,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* ─────────── 1. GENERAL ─────────── */}
             {activeTab === 'General' && (
-              <div className="space-y-6 pt-1">
-                {/* Section Execution */}
+              <div className="space-y-6 pt-1 max-w-2xl">
+                {/* 1. Execution */}
                 <div>
                   <h3 className="text-[13px] font-medium text-white mb-2">Execution</h3>
                   <div
@@ -763,11 +764,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
 
-                {/* Section Global Permissions */}
+                {/* 2. Global Permissions */}
                 <div>
                   <h3 className="text-[13px] font-medium text-white mb-2">Global Permissions</h3>
                   <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
-                    {/* Ligne 1 : Security Preset */}
+                    {/* Security Preset */}
                     <div className="p-4 flex items-center justify-between">
                       <div>
                         <div className="font-medium text-white text-[13.5px]">Security Preset</div>
@@ -793,7 +794,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Ligne 2 : Tool Permissions */}
+                    {/* Tool Permissions */}
                     <div className="p-4 flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
@@ -817,7 +818,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
 
-                {/* Section Agent Behavior */}
+                {/* 3. Agent Behavior */}
                 <div>
                   <h3 className="text-[13px] font-medium text-white mb-2">Agent Behavior</h3>
                   <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
@@ -838,6 +839,102 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         ]}
                         onChange={setArtifactReviewPolicy}
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Network Permissions */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Network Permissions</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div>
+                      <div className="font-medium text-white text-[13.5px]">Network Access Rules</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5">
+                        Configure allowed and denied URLs for reading.
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="px-4 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer"
+                    >
+                      Open
+                    </button>
+                  </div>
+                </div>
+
+                {/* 5. Terminal & Tooling Permissions */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Terminal &amp; Tooling Permissions</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div>
+                      <div className="font-medium text-white text-[13.5px]">Commands Outside Sandbox</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5">
+                        Configure allowed commands outside the sandbox.
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="px-4 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer"
+                    >
+                      Open
+                    </button>
+                  </div>
+                </div>
+
+                {/* 6. Browser */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-1">Browser</h3>
+                  <p className="text-[12px] text-[#8e9089] mb-2.5 leading-relaxed">
+                    Configure the browser subagent. It requires{' '}
+                    <a
+                      href="#chrome"
+                      onClick={(e) => e.preventDefault()}
+                      className="text-[#007aff] hover:underline cursor-pointer"
+                    >
+                      Google Chrome
+                    </a>{' '}
+                    to be installed. The browser subagent can be invoked by typing /browser in the conversation input box.
+                  </p>
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    {/* Browser Javascript Execution Policy */}
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="max-w-md pr-4">
+                        <div className="font-medium text-white text-[13.5px]">Browser Javascript Execution Policy</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5 leading-relaxed">
+                          Controls whether the agent can run custom JavaScript to automate complex browser actions.
+                        </div>
+                      </div>
+
+                      <div className="w-48 flex-shrink-0">
+                        <CustomSelect
+                          value={browserJsExecutionPolicy}
+                          options={[
+                            { value: 'Request Review', label: 'Request Review' },
+                            { value: 'Always Allow', label: 'Always Allow' },
+                            { value: 'Never Allow', label: 'Never Allow' }
+                          ]}
+                          onChange={setBrowserJsExecutionPolicy}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Browser Actuation Rules */}
+                    <div className="p-4 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Browser Actuation Rules</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          Configure allowed and denied URLs for browser actuation.
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="px-4 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer"
+                      >
+                        Edit
+                      </button>
                     </div>
                   </div>
                 </div>

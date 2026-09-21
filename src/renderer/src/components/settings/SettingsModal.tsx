@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { X, ChevronDown, ChevronRight, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw, RotateCw } from 'lucide-react'
+import { X, ChevronDown, ChevronRight, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw, RotateCw, Copy } from 'lucide-react'
 import { llmManager } from '../../services/llm/LLMManager'
 
 export type SettingsTab =
@@ -222,6 +222,45 @@ const CircularProgress: React.FC<{
     </svg>
   )
 }
+
+// ── Liste des AI Skills (focalisée sur le workspace & système) ──
+const DEFAULT_SKILLS = [
+  {
+    name: 'agy-customizations',
+    isGlobal: true,
+    plugin: null,
+    description:
+      'Comprehensive guide and reference for the Antigravity Customization System. Use to explain how customizations work, their loading priority, discovery mechanisms, and to guide the creation of skills, rules, plugins, hooks, and MCP servers.'
+  },
+  {
+    name: 'alphafold-database-fetch-and-analyze',
+    isGlobal: true,
+    plugin: 'science',
+    description:
+      'Retrieve and analyze AlphaFold predicted structures for a protein. Use when the user provides a specific UniProt Accession ID and wants structural confidence metrics (pLDDT), domain boundary analysis, or disorder assessment.'
+  },
+  {
+    name: 'alphagenome-atlas-website-links',
+    isGlobal: true,
+    plugin: 'science',
+    description:
+      'Constructs deep-links and URLs for the AlphaGenome Atlas website. Supports generating single-variant exploration links (1-based chr:pos:ref>alt), genomic locus views, candidate summary tables, and AlphaGenome reference vs. alternate predictions.'
+  },
+  {
+    name: 'uv',
+    isGlobal: true,
+    plugin: 'science',
+    description:
+      'Checks whether the uv Python package manager is installed and installs it if missing. Ensures uv is on PATH. Use when another skill requires uv as a prerequisite.'
+  },
+  {
+    name: 'workflow-skill-creator',
+    isGlobal: true,
+    plugin: 'science',
+    description:
+      'Distills a completed user workflow or interaction into a reusable agent skill. Use when the user asks to turn their workflow, interaction, or multi-step process into a skill, or when they say "make this a skill", "create a skill from what we just did", "package this workflow" or similar.'
+  }
+]
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
@@ -530,8 +569,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     "Configure the agent's visual theme and display preferences."}
                   {activeTab === 'Models' &&
                     'Manage your model quota and credits.'}
-                  {activeTab === 'Customizations' &&
-                    'Manage system prompts, developer rules, and AI skills.'}
+                  {activeTab === 'Customizations' && (
+                    <>
+                      Configure default behaviors, skills, and MCP servers.{' '}
+                      <a
+                        href="#learn-more"
+                        onClick={(e) => e.preventDefault()}
+                        className="text-[#007aff] hover:underline cursor-pointer"
+                      >
+                        Learn more
+                      </a>
+                      .
+                    </>
+                  )}
                   {activeTab === 'Shortcuts' &&
                     'Quick keyboard shortcuts and fast action triggers.'}
                   {activeTab.startsWith('proj-') &&
@@ -1279,18 +1329,151 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* ─────────── 5. CUSTOMIZATIONS ─────────── */}
             {activeTab === 'Customizations' && (
-              <div className="space-y-6 pt-1">
+              <div className="space-y-6 pt-1 max-w-2xl">
+                {/* 1. Token Usage */}
                 <div>
-                  <h3 className="text-[13px] font-medium text-white mb-2">Developer Instructions</h3>
-                  <div className="p-4 rounded-xl border border-[#282a26] bg-[#1c1e1a]/60">
-                    <div className="text-[12px] text-[#8e9089] mb-2.5">
-                      Custom rules and guidelines provided to all AI models in your workspace.
+                  <h3 className="text-[13px] font-medium text-white mb-2">Token Usage</h3>
+                  <div className="p-4 rounded-xl border border-[#282a26] bg-[#1c1e1a]/60 space-y-3">
+                    <p className="text-[12.5px] text-[#8e9089] leading-relaxed">
+                      The breakdown below shows token usage from customizations like skills, rules, and MCP. If the budget is exceeded, large customizations will be truncated automatically.
+                    </p>
+                    <div className="text-[12.5px] text-[#8e9089]">
+                      70.4% of the customization budget is available.
                     </div>
-                    <textarea
-                      rows={4}
-                      placeholder="e.g. Always write code in TypeScript with strict typing..."
-                      className="w-full bg-[#181916] border border-[#282a26] rounded-lg p-2.5 text-[12.5px] text-white placeholder-[#6a6c68] outline-none focus:border-[#007aff]/50 resize-none"
-                    />
+
+                    {/* Progress Bar */}
+                    <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#007aff]"
+                        style={{ width: '29.6%' }}
+                      />
+                    </div>
+
+                    {/* Footer info */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2 text-[12.5px]">
+                        <span className="w-2 h-2 rounded-full bg-[#007aff] flex-shrink-0" />
+                        <span className="font-medium text-white">Skills</span>
+                        <span className="text-[#8e9089]">(5 921 tokens) 29.6%</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="text-[12.5px] text-[#007aff] hover:underline cursor-pointer"
+                      >
+                        Show 42 breakdowns
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Skills */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-[13px] font-medium text-white">Skills</h3>
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-white font-medium">
+                        47
+                      </span>
+                      <ChevronDown size={13} className="text-[#8e9089]" />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                    {DEFAULT_SKILLS.map((skill) => (
+                      <div key={skill.name} className="p-3.5 px-4 group/skill">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-white text-[13.5px] tracking-tight">
+                              {skill.name}
+                            </span>
+                            {skill.isGlobal && (
+                              <span className="px-1.5 py-0.5 rounded text-[10.5px] font-medium bg-[#1a2936] text-[#38bdf8] border border-[#224460]">
+                                Global
+                              </span>
+                            )}
+                            {skill.plugin && (
+                              <span className="px-1.5 py-0.5 rounded text-[10.5px] font-medium bg-[#2d1b36] text-[#c678dd] border border-[#4a2656]">
+                                Plugin: {skill.plugin}
+                              </span>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => navigator.clipboard.writeText(skill.name)}
+                            className="text-[#60625c] group-hover/skill:text-white p-1 rounded transition-colors cursor-pointer"
+                            title="Copy skill name"
+                          >
+                            <Copy size={13} />
+                          </button>
+                        </div>
+
+                        <p className="text-[12px] text-[#8e9089] mt-1.5 leading-relaxed line-clamp-2">
+                          {skill.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Installed MCP Servers */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-[13px] font-medium text-white">Installed MCP Servers</h3>
+                      <button
+                        type="button"
+                        className="text-[#8e9089] hover:text-white transition-colors cursor-pointer"
+                        title="Refresh MCP servers"
+                      >
+                        <RotateCw size={12.5} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="px-3 py-1 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12px] font-medium transition-colors cursor-pointer"
+                      >
+                        Add MCP +
+                      </button>
+                      <button
+                        type="button"
+                        className="px-3 py-1 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12px] font-medium transition-colors cursor-pointer"
+                      >
+                        Open MCP Config
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-8 rounded-xl border border-[#282a26] bg-[#1c1e1a]/60 flex flex-col items-center justify-center text-center">
+                    <div className="font-medium text-white text-[13.5px] mb-1">
+                      No MCP servers installed
+                    </div>
+                    <div className="text-[12px] text-[#8e9089] max-w-sm leading-relaxed">
+                      Use Add MCP to browse the store, or add a custom server via the MCP config.
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Plugins */}
+                <div>
+                  <h3 className="text-[13px] font-medium text-white mb-2">Plugins</h3>
+                  <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                    <div>
+                      <div className="font-medium text-white text-[13.5px]">Build With Google Plugins</div>
+                      <div className="text-[12px] text-[#8e9089] mt-0.5">
+                        Browse and enable plugins from the Build With Google catalog.
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="px-3.5 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer flex-shrink-0"
+                    >
+                      Customize
+                    </button>
                   </div>
                 </div>
               </div>

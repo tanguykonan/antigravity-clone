@@ -135,6 +135,24 @@ export const App: React.FC = () => {
     setActiveConversationId(null)
   }
 
+  // Suppression d'une conversation
+  const handleDeleteConversation = (projectId: string, conversationId: string) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id === projectId) {
+          return {
+            ...p,
+            conversations: p.conversations?.filter((c) => c.id !== conversationId) || []
+          }
+        }
+        return p
+      })
+    )
+    if (activeConversationId === conversationId) {
+      setActiveConversationId(null)
+    }
+  }
+
   // Raccourci global Ctrl+Shift+P / Cmd+Shift+P pour ouvrir la palette de commande
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -175,6 +193,7 @@ export const App: React.FC = () => {
               onSelectConversation={handleSelectConversation}
               onNewConversation={handleNewConversation}
               onCreateChatInProject={handleCreateChatInProject}
+              onDeleteConversation={handleDeleteConversation}
               onSelectView={setActiveView}
               onToggleSidebar={() => setSidebarOpen(false)}
             />

@@ -3,6 +3,7 @@ import { Plus, History, CalendarClock, Folder, Settings, FolderPlus, ChevronLeft
 import appLogo from '../../assets/logo.png'
 import { ProjectsFilterMenu } from './ProjectsFilterMenu'
 import { ProjectOptionsMenu } from './ProjectOptionsMenu'
+import { ConversationOptionsMenu } from './ConversationOptionsMenu'
 
 export interface ConversationItem {
   id: string
@@ -30,6 +31,7 @@ interface SidebarProps {
   onSelectConversation: (projectId: string, conversationId: string) => void
   onNewConversation: () => void
   onCreateChatInProject: (projectId: string) => void
+  onDeleteConversation?: (projectId: string, conversationId: string) => void
   onSelectView: (view: 'chat' | 'history' | 'scheduled-tasks') => void
   onToggleSidebar?: () => void
 }
@@ -43,16 +45,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectConversation,
   onNewConversation,
   onCreateChatInProject,
+  onDeleteConversation,
   onSelectView,
   onToggleSidebar
 }) => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [openProjectOptionsId, setOpenProjectOptionsId] = useState<string | null>(null)
+  const [openConvOptionsId, setOpenConvOptionsId] = useState<string | null>(null)
   const [expandedProjectIds, setExpandedProjectIds] = useState<Set<string>>(
     new Set(['desktop-llm', 'SmoothTerminal'])
   )
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const projectButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+  const convButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
 
   const handleToggleExpand = (projectId: string) => {
     setExpandedProjectIds((prev) => {
@@ -371,7 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           e.stopPropagation()
                           onSelectConversation(project.id, conv.id)
                         }}
-                        className={`flex items-center justify-between py-1 px-2.5 my-0.5 rounded-md cursor-pointer transition-colors duration-150 select-none ${
+                        className={`flex items-center justify-between py-1 px-2.5 my-0.5 rounded-md cursor-pointer transition-colors duration-150 select-none group/conv ${
                           isConvActive
                             ? 'bg-white/[0.04] text-[#eceee9]'
                             : 'text-[#8a8c87] hover:bg-white/[0.025] hover:text-[#c5c7c2]'
@@ -390,17 +395,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         >
                           {conv.title}
                         </span>
-                        {conv.time && (
-                          <span
-                            className={`px-1 py-0.5 rounded text-[10px] font-mono ml-2 flex-shrink-0 transition-colors ${
-                              isConvActive
-                                ? 'text-[#a0a29c]'
-                                : 'text-[#6f716c]'
-                            }`}
-                          >
-                            {conv.time}
-                          </span>
-                        )}
+
+                        {/* Actions à droite : Badge de temps ou 3 points au survol */}
+                        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                          {conv.time && (
+                            <span
+                              className={`px-1 py-0.5 rounded text-[10px] font-mono transition-colors ${
+                                isConvActive ? 'text-[#a0a29c]' : 'text-[#6f716c]'
+                              } ${openConvOptionsId === conv.id ? 'hidden' : 'group-hover/conv:hidden'}`}
+                            >
+                              {conv.time}
+                            </span>
+                          )}
+
+                          <div className={`relative ${openConvOptionsId === conv.id ? 'block' : 'hidden group-hover/conv:block'}`}>
+                            <button
+                              ref={(el) => {
+                                convButtonRefs.current[conv.id] = el
+                              }}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setOpenConvOptionsId((prev) => (prev === conv.id ? null : conv.id))
+                              }}
+                              className={`w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 transition-colors ${
+                                openConvOptionsId === conv.id
+                                  ? 'bg-white/10 text-white'
+                                  : 'text-[#8a8c87] hover:text-white'
+                              }`}
+                              data-tooltip={openConvOptionsId === conv.id ? undefined : 'More options'}
+                              data-tooltip-side="top"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="5" r="1.75" />
+                                <circle cx="12" cy="12" r="1.75" />
+                                <circle cx="12" cy="19" r="1.75" />
+                              </svg>
+                            </button>
+                            <ConversationOptionsMenu
+                              isOpen={openConvOptionsId === conv.id}
+                              onClose={() => setOpenConvOptionsId(null)}
+                              conversationTitle={conv.title}
+                              anchorRef={{ current: convButtonRefs.current[conv.id] ?? null }}
+                              onDelete={() => {
+                                if (onDeleteConversation) onDeleteConversation(project.id, conv.id)
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )
                   })}

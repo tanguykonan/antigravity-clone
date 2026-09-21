@@ -25,18 +25,50 @@ export const TooltipProvider: React.FC = () => {
   })
 
   // ready = false tant que useLayoutEffect n'a pas corrigé la position
-  // Cela évite le "saut" visuel (tooltip qui apparaît décalé puis se redresse)
   const [ready, setReady] = useState(false)
-
   const tooltipRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement)?.closest('[data-tooltip]') as HTMLElement | null
-      if (!target) return
+    let activeTarget: HTMLElement | null = null
 
+    const hide = () => {
+      if (tooltipTimer) {
+        clearTimeout(tooltipTimer)
+        tooltipTimer = null
+      }
+      activeTarget = null
+      setReady(false)
+      setTooltip((prev) => (prev.visible ? { ...prev, visible: false } : prev))
+
+      if (warmTimer) clearTimeout(warmTimer)
+      warmTimer = setTimeout(() => {
+        isWarm = false
+      }, 300)
+    }
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const target = (e.target as HTMLElement)?.closest('[data-tooltip]') as HTMLElement | null
+
+      // Si le curseur n'est plus sur un élément avec tooltip
+      if (!target) {
+        if (activeTarget) {
+          hide()
+        }
+        return
+      }
+
+      // Si le curseur est toujours sur le même élément
+      if (target === activeTarget) {
+        return
+      }
+
+      // Changement de cible
+      activeTarget = target
       const content = target.getAttribute('data-tooltip')
-      if (!content) return
+      if (!content) {
+        hide()
+        return
+      }
 
       const side = (target.getAttribute('data-tooltip-side') || 'bottom') as 'top' | 'bottom' | 'left' | 'right'
       const align = (target.getAttribute('data-tooltip-align') || 'center') as 'start' | 'center' | 'end'
@@ -45,6 +77,7 @@ export const TooltipProvider: React.FC = () => {
       if (warmTimer) clearTimeout(warmTimer)
 
       const updatePos = () => {
+        if (activeTarget !== target) return
         const rect = target.getBoundingClientRect()
         let x = rect.left + rect.width / 2
         let y = rect.bottom + 6
@@ -59,7 +92,6 @@ export const TooltipProvider: React.FC = () => {
           y = rect.top + rect.height / 2
         }
 
-        // Marquer comme "pas prêt" avant le prochain rendu pour éviter le saut
         setReady(false)
         setTooltip({
           visible: true,
@@ -75,40 +107,37 @@ export const TooltipProvider: React.FC = () => {
       if (isWarm) {
         updatePos()
       } else {
-        tooltipTimer = setTimeout(updatePos, 200)
+        tooltipTimer = setTimeout(updatePos, 150)
       }
     }
 
-    const handleMouseOut = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement)?.closest('[data-tooltip]')
-      if (!target) return
-
-      if (tooltipTimer) clearTimeout(tooltipTimer)
-      setReady(false)
-      setTooltip((prev) => ({ ...prev, visible: false }))
-
-      if (warmTimer) clearTimeout(warmTimer)
-      warmTimer = setTimeout(() => {
-        isWarm = false
-      }, 350)
+    const handleWindowLeave = () => {
+      hide()
     }
 
-    window.addEventListener('mouseover', handleMouseOver)
-    window.addEventListener('mouseout', handleMouseOut)
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    window.addEventListener('pointerdown', hide)
+    window.addEventListener('wheel', hide, { passive: true })
+    window.addEventListener('scroll', hide, { passive: true })
+    window.addEventListener('blur', hide)
+    document.addEventListener('mouseleave', handleWindowLeave)
 
     return () => {
-      window.removeEventListener('mouseover', handleMouseOver)
-      window.removeEventListener('mouseout', handleMouseOut)
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerdown', hide)
+      window.removeEventListener('wheel', hide)
+      window.removeEventListener('scroll', hide)
+      window.removeEventListener('blur', hide)
+      document.removeEventListener('mouseleave', handleWindowLeave)
       if (tooltipTimer) clearTimeout(tooltipTimer)
       if (warmTimer) clearTimeout(warmTimer)
     }
   }, [])
 
-  // Auto-clamp : corrige la position avant l'affichage pour éviter tout débordement
+  // Auto-clamp : corrige la position avant l'affichage pour éviter tout débordement d'écran
   useLayoutEffect(() => {
     if (tooltip.visible && tooltipRef.current) {
       const el = tooltipRef.current
-      // Réinitialiser le style inline pour mesurer la position réelle
       el.style.left = `${tooltip.x}px`
 
       const rect = el.getBoundingClientRect()
@@ -122,7 +151,6 @@ export const TooltipProvider: React.FC = () => {
         el.style.left = `${tooltip.x + diff}px`
       }
 
-      // Position corrigée → on peut maintenant afficher
       setReady(true)
     }
   }, [tooltip])
@@ -134,7 +162,6 @@ export const TooltipProvider: React.FC = () => {
   else if (tooltip.side === 'left') transform = 'translate(-100%, -50%)'
   else if (tooltip.side === 'right') transform = 'translate(0, -50%)'
 
-  // Le tooltip est visible ET sa position a été corrigée par useLayoutEffect
   const isVisible = tooltip.visible && ready
 
   return createPortal(

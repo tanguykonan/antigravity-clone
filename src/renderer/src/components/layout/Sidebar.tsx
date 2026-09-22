@@ -659,51 +659,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* ── Settings (au bas de la sidebar — style macOS permanent avec rotation au hover) ── */}
-      <div
-        className="p-2 flex-shrink-0"
-        style={{
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-          backgroundColor: 'rgba(30, 32, 29, 0.95)'
-        }}
-      >
+      {/* ── Settings (au bas de la sidebar — style Antigravity authentique avec badge au hover) ── */}
+      <div className="p-2 flex-shrink-0">
         <button
           type="button"
           onClick={onOpenSettings}
-          className="w-full flex items-center justify-between px-2.5 rounded-lg transition-all duration-200 text-left select-none cursor-pointer group active:scale-[0.98]"
+          className="w-full flex items-center justify-between px-3 rounded-lg transition-colors text-left overflow-hidden cursor-pointer group"
           style={{
-            height: 34,
-            color: '#dcded9',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.2)'
+            height: 32,
+            fontSize: '13.5px',
+            fontWeight: 400,
+            color: '#9a9c97',
+            backgroundColor: 'transparent'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = '#ffffff'
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.09)'
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.14)'
-            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.25)'
+            e.currentTarget.style.backgroundColor = '#242622'
+            e.currentTarget.style.color = '#eceee9'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = '#dcded9'
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.07)'
-            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.2)'
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.color = '#9a9c97'
           }}
         >
           <div className="flex items-center gap-2.5 truncate">
             <Settings
               size={15}
               strokeWidth={1.8}
-              className="flex-shrink-0 text-[#a8aaa4] group-hover:text-white transition-all duration-500 ease-out group-hover:rotate-90"
+              className="flex-shrink-0 text-[#8a8c87] group-hover:text-[#eceee9] transition-colors"
             />
-            <span style={{ fontSize: '13px', fontWeight: 500, letterSpacing: '-0.01em' }}>
-              Settings
-            </span>
+            <span className="whitespace-nowrap truncate">Settings</span>
           </div>
 
-          {/* Badge raccourci clavier macOS permanent */}
-          <span className="text-[11px] font-mono text-[#8a8c87] group-hover:text-white px-1.5 py-0.5 rounded bg-white/[0.04] group-hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-150">
+          {/* Badge raccourci clavier qui apparaît au hover */}
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-[10.5px] font-mono text-[#8a8c87] px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.06] flex-shrink-0">
             Ctrl+,
           </span>
         </button>

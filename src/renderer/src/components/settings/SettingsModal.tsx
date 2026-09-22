@@ -1,5 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { X, ChevronDown, ChevronRight, Info, Check, Paperclip, Monitor, Sun, Moon, RotateCcw, RotateCw, Copy } from 'lucide-react'
+import {
+  X,
+  ChevronDown,
+  ChevronRight,
+  Info,
+  Check,
+  Paperclip,
+  Monitor,
+  Sun,
+  Moon,
+  RotateCcw,
+  RotateCw,
+  Copy,
+  Pencil,
+  Trash2,
+  Folder
+} from 'lucide-react'
 import { llmManager } from '../../services/llm/LLMManager'
 
 export type SettingsTab =
@@ -17,8 +33,9 @@ interface SettingsModalProps {
   isOpen: boolean
   onClose: () => void
   initialTab?: string
-  projects?: { id: string; name: string }[]
+  projects?: { id: string; name: string; conversations?: any[] }[]
   onSignOut?: () => void
+  onDeleteProject?: (projectId: string) => void
 }
 
 // ── Composant Switch Toggle macOS ultra fluide, tactile et vivant ──
@@ -262,6 +279,47 @@ const DEFAULT_SKILLS = [
   }
 ]
 
+// ── Liste des Plugins par défaut ──
+const DEFAULT_PLUGINS = [
+  {
+    id: 'android-cli-plugin',
+    name: 'android-cli-plugin',
+    isGlobal: true,
+    description: 'Core tools and knowledge required to develop for Android'
+  },
+  {
+    id: 'chrome-devtools-plugin',
+    name: 'chrome-devtools-plugin',
+    isGlobal: true,
+    description:
+      'Reliable automation, in-depth debugging, and performance analysis in Chrome using Chrome DevTools and Puppeteer'
+  },
+  {
+    id: 'firebase',
+    name: 'firebase',
+    isGlobal: true,
+    description: ''
+  },
+  {
+    id: 'google-antigravity-sdk',
+    name: 'google-antigravity-sdk',
+    isGlobal: true,
+    description: 'Using the Google Antigravity Python SDK to build AI agents'
+  },
+  {
+    id: 'modern-web-guidance-plugin',
+    name: 'modern-web-guidance-plugin',
+    isGlobal: true,
+    description: 'Curated collection of agent skills for modern web development.'
+  },
+  {
+    id: 'science',
+    name: 'science',
+    isGlobal: true,
+    description: 'Curated collection of agent skills for science tasks.'
+  }
+]
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
@@ -271,7 +329,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { id: 'SmoothTerminal', name: 'SmoothTerminal' },
     { id: 'test-box', name: 'test-box' }
   ],
-  onSignOut
+  onSignOut,
+  onDeleteProject
 }) => {
   const [activeTab, setActiveTab] = useState<string>(initialTab)
 
@@ -282,6 +341,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [browserJsExecutionPolicy, setBrowserJsExecutionPolicy] = useState('Request Review')
   const [autoUpdate, setAutoUpdate] = useState(true)
   const [launchAtLogin, setLaunchAtLogin] = useState(false)
+
+  // Project-specific settings state
+  const [projectSecurityPresets, setProjectSecurityPresets] = useState<Record<string, string>>({})
+  const [projectArtifactPolicies, setProjectArtifactPolicies] = useState<Record<string, string>>({})
+  const [enabledPlugins, setEnabledPlugins] = useState<Record<string, boolean>>({
+    'android-cli-plugin': true,
+    'chrome-devtools-plugin': true,
+    firebase: true,
+    'google-antigravity-sdk': true,
+    'modern-web-guidance-plugin': true,
+    science: true
+  })
 
   // Application tab state
   const [preventSleep, setPreventSleep] = useState(false)
@@ -555,7 +626,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </>
                     )
                   : activeTab.startsWith('proj-')
-                  ? 'Project Settings'
+                  ? (
+                      <div className="flex items-center gap-2">
+                        <span>
+                          {projects.find((p) => `proj-${p.id}` === activeTab)?.name || 'Project'}
+                        </span>
+                        <button
+                          type="button"
+                          className="p-1 text-[#8e9089] hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                          title="Rename project"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      </div>
+                    )
                   : activeTab}
               </h2>
               {activeTab !== 'Provide Feedback' && (
@@ -586,7 +670,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {activeTab === 'Shortcuts' &&
                     'Quick keyboard shortcuts and fast action triggers.'}
                   {activeTab.startsWith('proj-') &&
-                    'Configure project-level workspace variables, context, and permissions.'}
+                    'Manage project folders, agent settings, and permissions.'}
                 </p>
               )}
             </div>
@@ -1865,6 +1949,350 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
             )}
+
+            {/* ─────────── 8. PROJECT SETTINGS ─────────── */}
+            {activeTab.startsWith('proj-') && (() => {
+              const currentProjectId = activeTab.replace('proj-', '')
+              const currentProject = projects.find((p) => p.id === currentProjectId) || {
+                id: currentProjectId,
+                name: currentProjectId,
+                conversations: []
+              }
+              const currentFolders = [currentProject.name + '/']
+              const currentSecurity = projectSecurityPresets[currentProjectId] || 'Inherit Global'
+              const currentArtifact = projectArtifactPolicies[currentProjectId] || 'Inherit Global'
+              const convCount = currentProject.conversations?.length ?? 1
+
+              return (
+                <div className="space-y-6 pt-1 max-w-2xl">
+                  {/* 1. Folders */}
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-2">Folders</h3>
+                    <div className="rounded-xl border border-[#282a26] bg-[#1c1e1a]/60 overflow-hidden divide-y divide-[#282a26]">
+                      {currentFolders.map((folder, idx) => (
+                        <div key={idx} className="p-3.5 px-4 flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <Folder size={15} className="text-[#8e9089]" />
+                            <span className="text-[13px] font-normal text-white">{folder}</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-[#7a7c78] hover:text-white transition-colors cursor-pointer p-0.5"
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="w-full py-2.5 flex items-center justify-center text-[12.5px] font-medium text-[#c5c7c2] hover:text-white hover:bg-white/[0.03] transition-colors cursor-pointer"
+                      >
+                        + Add Folder
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. Agent Settings */}
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-2">Agent Settings</h3>
+                    <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Security Preset</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          Controls the actions the agent can take.
+                        </div>
+                        <div className="flex items-center gap-1 text-[11.5px] text-[#7a7c78] hover:text-[#a0a29c] transition-colors cursor-pointer mt-1">
+                          <span>Learn more about {currentSecurity}</span>
+                          <Info size={12} />
+                        </div>
+                      </div>
+
+                      <div className="w-44">
+                        <CustomSelect
+                          value={currentSecurity}
+                          options={[
+                            { value: 'Inherit Global', label: 'Inherit Global' },
+                            { value: 'Default', label: 'Default' },
+                            { value: 'Strict', label: 'Strict' },
+                            { value: 'Permissive', label: 'Permissive' }
+                          ]}
+                          onChange={(val) =>
+                            setProjectSecurityPresets((prev) => ({
+                              ...prev,
+                              [currentProjectId]: val
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Agent Behavior */}
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-2">Agent Behavior</h3>
+                    <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Artifact Review Policy</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          Whether the agent asks you to review its documents.
+                        </div>
+                      </div>
+
+                      <div className="w-44">
+                        <CustomSelect
+                          value={currentArtifact}
+                          options={[
+                            { value: 'Inherit Global', label: 'Inherit Global' },
+                            { value: 'Always Ask', label: 'Always Ask' },
+                            { value: 'Ask on Modifications', label: 'Ask on Modifications' },
+                            { value: 'Never Ask', label: 'Never Ask' }
+                          ]}
+                          onChange={(val) =>
+                            setProjectArtifactPolicies((prev) => ({
+                              ...prev,
+                              [currentProjectId]: val
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Local Permissions */}
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-1">Local Permissions</h3>
+                    <p className="text-[12px] text-[#8e9089] mb-2.5 leading-relaxed">
+                      Also includes{' '}
+                      <a
+                        href="#global"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setActiveTab('General')
+                        }}
+                        className="text-[#007aff] hover:underline cursor-pointer"
+                      >
+                        Global Permissions
+                      </a>{' '}
+                      when working in this project.{' '}
+                      <a
+                        href="#learn-more"
+                        onClick={(e) => e.preventDefault()}
+                        className="text-[#007aff] hover:underline cursor-pointer"
+                      >
+                        Learn more
+                      </a>
+                      .
+                    </p>
+                    <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                      {[
+                        { label: 'File Access Rules', desc: 'Configure allowed and denied paths for file reads and writes.' },
+                        { label: 'Network Access Rules', desc: 'Configure allowed and denied URLs for reading.' },
+                        { label: 'Terminal Commands', desc: 'Configure allowed terminal commands.' },
+                        { label: 'Commands Outside Sandbox', desc: 'Configure allowed commands outside the sandbox.' },
+                        { label: 'MCP Tools', desc: 'Configure external tools via Model Context Protocol.' }
+                      ].map((item, i) => (
+                        <div key={i} className="p-4 flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-white text-[13.5px]">{item.label}</div>
+                            <div className="text-[12px] text-[#8e9089] mt-0.5">{item.desc}</div>
+                          </div>
+                          <button
+                            type="button"
+                            className="px-4 py-1.5 rounded-lg bg-[#2b2d29] hover:bg-white/[0.08] border border-white/[0.06] text-[#dcded9] hover:text-white text-[12.5px] font-medium transition-colors cursor-pointer"
+                          >
+                            Open
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 5. Customizations */}
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-2">Customizations</h3>
+                    <div className="p-4 rounded-xl border border-[#282a26] bg-[#1c1e1a]/60 space-y-3">
+                      <p className="text-[12.5px] text-[#8e9089] leading-relaxed">
+                        The breakdown below shows token usage from customizations like skills, rules, and MCP. If the budget is exceeded, large customizations will be truncated automatically.
+                      </p>
+                      <div className="text-[12.5px] text-[#8e9089]">
+                        70.4% of the customization budget is available.
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[#007aff]"
+                          style={{ width: '29.6%' }}
+                        />
+                      </div>
+
+                      {/* Footer info */}
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center gap-2 text-[12.5px]">
+                          <span className="w-2 h-2 rounded-full bg-[#007aff] flex-shrink-0" />
+                          <span className="font-medium text-white">Skills</span>
+                          <span className="text-[#8e9089]">(5 921 tokens) 29.6%</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="text-[12.5px] text-[#007aff] hover:underline cursor-pointer"
+                        >
+                          Show 42 breakdowns
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 6. Skills */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-[13px] font-medium text-white">Skills</h3>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-white font-medium">
+                          47
+                        </span>
+                        <ChevronDown size={13} className="text-[#8e9089]" />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                      {DEFAULT_SKILLS.map((skill) => (
+                        <div key={skill.name} className="p-3.5 px-4 group/skill">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium text-white text-[13.5px] tracking-tight">
+                                {skill.name}
+                              </span>
+                              {skill.isGlobal && (
+                                <span className="px-1.5 py-0.5 rounded text-[10.5px] font-medium bg-[#1a2936] text-[#38bdf8] border border-[#224460]">
+                                  Global
+                                </span>
+                              )}
+                              {skill.plugin && (
+                                <span className="px-1.5 py-0.5 rounded text-[10.5px] font-medium bg-[#2d1b36] text-[#c678dd] border border-[#4a2656]">
+                                  Plugin: {skill.plugin}
+                                </span>
+                              )}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => navigator.clipboard.writeText(skill.name)}
+                              className="text-[#60625c] group-hover/skill:text-white p-1 rounded transition-colors cursor-pointer"
+                              title="Copy skill name"
+                            >
+                              <Copy size={13} />
+                            </button>
+                          </div>
+
+                          <p className="text-[12px] text-[#8e9089] mt-1.5 leading-relaxed line-clamp-2">
+                            {skill.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 7. Plugins */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-[13px] font-medium text-white">Plugins</h3>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-white font-medium">
+                          6
+                        </span>
+                        <ChevronDown size={13} className="text-[#8e9089]" />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl divide-y divide-[#282a26] border border-[#282a26] bg-[#1c1e1a]/60">
+                      {DEFAULT_PLUGINS.map((plugin) => (
+                        <div key={plugin.id} className="p-3.5 px-4 group/plugin">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-white text-[13.5px] tracking-tight">
+                                {plugin.name}
+                              </span>
+                              {plugin.isGlobal && (
+                                <span className="px-1.5 py-0.5 rounded text-[10.5px] font-medium bg-[#1a2936] text-[#38bdf8] border border-[#224460]">
+                                  Global
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => navigator.clipboard.writeText(plugin.name)}
+                                className="text-[#60625c] group-hover/plugin:text-white transition-colors cursor-pointer p-1"
+                                title="Copy plugin name"
+                              >
+                                <Copy size={13.5} />
+                              </button>
+                              <button
+                                type="button"
+                                className="text-[#60625c] hover:text-red-400 transition-colors cursor-pointer p-1"
+                                title="Remove plugin"
+                              >
+                                <Trash2 size={13.5} />
+                              </button>
+                              <MacOSToggle
+                                checked={enabledPlugins[plugin.id] ?? true}
+                                onChange={(val) =>
+                                  setEnabledPlugins((prev) => ({
+                                    ...prev,
+                                    [plugin.id]: val
+                                  }))
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          {plugin.description && (
+                            <p className="text-[12px] text-[#8e9089] mt-1 leading-relaxed">
+                              {plugin.description}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 8. Danger Zone */}
+                  <div>
+                    <h3 className="text-[13px] font-medium text-white mb-2">Danger Zone</h3>
+                    <div className="p-4 rounded-xl flex items-center justify-between border border-[#282a26] bg-[#1c1e1a]/60">
+                      <div>
+                        <div className="font-medium text-white text-[13.5px]">Delete Project</div>
+                        <div className="text-[12px] text-[#8e9089] mt-0.5">
+                          Permanently delete{' '}
+                          <span className="text-white font-medium">{currentProject.name}</span>{' '}
+                          including {convCount} active conversation{convCount > 1 ? 's' : ''}.
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Are you sure you want to delete project "${currentProject.name}"?`
+                            )
+                          ) {
+                            onDeleteProject?.(currentProjectId)
+                            setActiveTab('General')
+                          }
+                        }}
+                        className="px-4 py-1.5 rounded-lg text-white font-medium text-[12.5px] bg-[#e03838] hover:bg-[#c92a2a] transition-all cursor-pointer active:scale-95 shadow-md flex-shrink-0"
+                      >
+                        Delete Project
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         </div>
       </div>

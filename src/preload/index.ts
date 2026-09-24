@@ -3,8 +3,8 @@ import { IPC_CHANNELS } from '../shared/constants/ipc'
 import { ElectronAPI } from '../shared/types/ipc'
 
 /**
- * Pont sécurisé exposant une API strictement typée au Renderer Process.
- * Aucune API Node.js brute n'est accessible depuis le Renderer.
+ * Secure bridge exposing typed API to the Renderer Process.
+ * No raw Node.js API is directly exposed to the Renderer.
  */
 const api: ElectronAPI = {
   system: {
@@ -26,7 +26,7 @@ if (process.contextIsolated) {
     console.error('Failed to expose electronAPI in main world:', error)
   }
 } else {
-  // Fallback si contextIsolation était désactivé (déconseillé)
+  // Fallback if contextIsolation is disabled (discouraged)
   // @ts-ignore (define in window)
   window.electronAPI = api
 }

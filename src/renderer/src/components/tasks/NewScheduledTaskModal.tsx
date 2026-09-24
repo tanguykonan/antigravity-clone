@@ -49,7 +49,7 @@ export const NewScheduledTaskModal: React.FC<NewScheduledTaskModalProps> = ({
   onAddTask
 }) => {
   const [name, setName] = useState('')
-  const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || 'desktop-llm')
+  const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || 'project1')
   const [frequency, setFrequency] = useState('Daily')
   const [time, setTime] = useState('9:00 AM')
   const [prompt, setPrompt] = useState('')
@@ -101,8 +101,8 @@ export const NewScheduledTaskModal: React.FC<NewScheduledTaskModalProps> = ({
 
     onAddTask({
       name: name.trim(),
-      projectId: selectedProject?.id || 'desktop-llm',
-      projectName: selectedProject?.name || 'desktop-llm',
+      projectId: selectedProject?.id || 'project1',
+      projectName: selectedProject?.name || 'project1',
       frequency,
       time,
       prompt: prompt.trim()

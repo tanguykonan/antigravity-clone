@@ -12,7 +12,7 @@ interface ModelSelectorDropdownProps {
   onSelectModel: (id: string, model: ProviderModelTier) => void
 }
 
-// ── Icônes vectorielles SVG minimalistes & sur-mesure pour chaque provider ──
+// Minimalist SVG provider icons
 const ProviderIcon: React.FC<{ id: LLMProviderId; className?: string }> = ({ id, className = 'w-3.5 h-3.5' }) => {
   switch (id) {
     case 'ollama':
@@ -88,7 +88,7 @@ export const ModelSelectorDropdown: React.FC<ModelSelectorDropdownProps> = ({
     setSearchQuery('')
   }
 
-  // ── Moteur de calcul de positionnement intelligent avec détection de l'espace haut / bas ──
+  // Smart positioning calculation with viewport edge detection
   const calculateSmartPosition = useCallback(() => {
     if (!anchorRef.current) return
 
@@ -97,11 +97,11 @@ export const ModelSelectorDropdown: React.FC<ModelSelectorDropdownProps> = ({
     const viewportWidth = window.innerWidth
     const menuWidth = 260
 
-    // Espace disponible réel au-dessus et en-dessous de l'élément déclencheur
+    // Available space above and below anchor
     const spaceAbove = anchorRect.top - 8
     const spaceBelow = viewportHeight - anchorRect.bottom - 8
 
-    // Hauteur de contenu estimée ou mesurée
+    // Measured or estimated menu height
     const menuEl = menuRef.current
     const menuHeight = menuEl && menuEl.offsetHeight > 50 ? menuEl.offsetHeight : 230
     const requiredSpace = menuHeight + 10
@@ -110,9 +110,9 @@ export const ModelSelectorDropdown: React.FC<ModelSelectorDropdownProps> = ({
     let maxHeight: number
     let placement: 'top' | 'bottom'
 
-    // ── Décision de positionnement naturel & intelligente ──
-    // 1. Si l'espace en bas est suffisant -> ouvrir vers le BAS (naturel)
-    // 2. Si l'espace en bas est insuffisant -> ouvrir vers le HAUT
+    // Smart placement decision:
+    // 1. If sufficient space below -> open DOWNWARDS
+    // 2. If insufficient space below -> open UPWARDS
     if (spaceBelow >= requiredSpace) {
       placement = 'bottom'
       maxHeight = Math.min(spaceBelow - 6, 380)
@@ -123,7 +123,7 @@ export const ModelSelectorDropdown: React.FC<ModelSelectorDropdownProps> = ({
       top = anchorRect.top - 6
     }
 
-    // Positionnement horizontal avec alignement naturel et clamp bord d'écran
+    // Horizontal positioning with screen clamping
     let left = anchorRect.left
     if (left + menuWidth > viewportWidth - 10) {
       left = viewportWidth - menuWidth - 10

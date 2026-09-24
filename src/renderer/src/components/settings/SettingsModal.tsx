@@ -17,6 +17,7 @@ import {
   Folder
 } from 'lucide-react'
 import { llmManager } from '../../services/llm/LLMManager'
+import { DEFAULT_SKILLS, DEFAULT_PLUGINS } from '../../mocks'
 
 export type SettingsTab =
   | 'General'
@@ -38,7 +39,7 @@ interface SettingsModalProps {
   onDeleteProject?: (projectId: string) => void
 }
 
-// ── Composant Switch Toggle macOS ultra fluide, tactile et vivant ──
+// Switch Toggle Component
 const MacOSToggle: React.FC<{ checked: boolean; onChange: (checked: boolean) => void }> = ({
   checked,
   onChange
@@ -84,7 +85,7 @@ const MacOSToggle: React.FC<{ checked: boolean; onChange: (checked: boolean) => 
   )
 }
 
-// ── Custom macOS Select Dropdown harmonisé (pas de dégradation de couleur) ──
+// Custom Select Dropdown Component
 const CustomSelect: React.FC<{
   value: string
   options: { value: string; label: string }[]
@@ -170,7 +171,7 @@ const CustomSelect: React.FC<{
   )
 }
 
-// ── Composant Ligne de sélection de couleur (Hex + swatch tactile) ──
+// Color Picker Row Component
 const ColorPickerRow: React.FC<{
   label: string
   color: string
@@ -205,7 +206,7 @@ const ColorPickerRow: React.FC<{
   )
 }
 
-// ── Composant Jauge circulaire de quota (style Google Antigravity / Progravity) ──
+// Circular Quota Gauge Component
 const CircularProgress: React.FC<{
   percentage: number
   size?: number
@@ -240,94 +241,14 @@ const CircularProgress: React.FC<{
   )
 }
 
-// ── Liste des AI Skills (focalisée sur le workspace & système) ──
-const DEFAULT_SKILLS = [
-  {
-    name: 'agy-customizations',
-    isGlobal: true,
-    plugin: null,
-    description:
-      'Comprehensive guide and reference for the Antigravity Customization System. Use to explain how customizations work, their loading priority, discovery mechanisms, and to guide the creation of skills, rules, plugins, hooks, and MCP servers.'
-  },
-  {
-    name: 'alphafold-database-fetch-and-analyze',
-    isGlobal: true,
-    plugin: 'science',
-    description:
-      'Retrieve and analyze AlphaFold predicted structures for a protein. Use when the user provides a specific UniProt Accession ID and wants structural confidence metrics (pLDDT), domain boundary analysis, or disorder assessment.'
-  },
-  {
-    name: 'alphagenome-atlas-website-links',
-    isGlobal: true,
-    plugin: 'science',
-    description:
-      'Constructs deep-links and URLs for the AlphaGenome Atlas website. Supports generating single-variant exploration links (1-based chr:pos:ref>alt), genomic locus views, candidate summary tables, and AlphaGenome reference vs. alternate predictions.'
-  },
-  {
-    name: 'uv',
-    isGlobal: true,
-    plugin: 'science',
-    description:
-      'Checks whether the uv Python package manager is installed and installs it if missing. Ensures uv is on PATH. Use when another skill requires uv as a prerequisite.'
-  },
-  {
-    name: 'workflow-skill-creator',
-    isGlobal: true,
-    plugin: 'science',
-    description:
-      'Distills a completed user workflow or interaction into a reusable agent skill. Use when the user asks to turn their workflow, interaction, or multi-step process into a skill, or when they say "make this a skill", "create a skill from what we just did", "package this workflow" or similar.'
-  }
-]
-
-// ── Liste des Plugins par défaut ──
-const DEFAULT_PLUGINS = [
-  {
-    id: 'android-cli-plugin',
-    name: 'android-cli-plugin',
-    isGlobal: true,
-    description: 'Core tools and knowledge required to develop for Android'
-  },
-  {
-    id: 'chrome-devtools-plugin',
-    name: 'chrome-devtools-plugin',
-    isGlobal: true,
-    description:
-      'Reliable automation, in-depth debugging, and performance analysis in Chrome using Chrome DevTools and Puppeteer'
-  },
-  {
-    id: 'firebase',
-    name: 'firebase',
-    isGlobal: true,
-    description: ''
-  },
-  {
-    id: 'google-antigravity-sdk',
-    name: 'google-antigravity-sdk',
-    isGlobal: true,
-    description: 'Using the Google Antigravity Python SDK to build AI agents'
-  },
-  {
-    id: 'modern-web-guidance-plugin',
-    name: 'modern-web-guidance-plugin',
-    isGlobal: true,
-    description: 'Curated collection of agent skills for modern web development.'
-  },
-  {
-    id: 'science',
-    name: 'science',
-    isGlobal: true,
-    description: 'Curated collection of agent skills for science tasks.'
-  }
-]
-
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   initialTab = 'General',
   projects = [
-    { id: 'desktop-llm', name: 'desktop-llm' },
-    { id: 'SmoothTerminal', name: 'SmoothTerminal' },
-    { id: 'test-box', name: 'test-box' }
+    { id: 'project1', name: 'project1' },
+    { id: 'project2', name: 'project2' },
+    { id: 'project3', name: 'project3' }
   ],
   onSignOut,
   onDeleteProject
@@ -417,7 +338,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       }}
       onClick={onClose}
     >
-      {/* ── Boîte modale principale ── */}
+      {/* Main modal container */}
       <div
         className="relative flex w-[940px] max-w-[95vw] h-[640px] max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-100"
         style={{
@@ -428,7 +349,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Colonne de gauche : Sidebar Settings ── */}
+        {/* Left sidebar: Settings navigation */}
         <div
           className="w-[210px] flex-shrink-0 flex flex-col justify-between"
           style={{
@@ -436,9 +357,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             borderRight: '1px solid #282a26'
           }}
         >
-          {/* Liste des sections et onglets avec scrollbar discrète */}
+          {/* Sections and tabs list */}
           <div className="flex-1 overflow-y-auto px-2.5 pt-4 pb-2 space-y-4 custom-scrollbar">
-            {/* Section Principale */}
+            {/* Main Settings Section */}
             <div className="space-y-0.5">
               <div className="px-2 pb-1 text-[11.5px] font-normal text-[#7a7c78]">
                 Settings
@@ -478,7 +399,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
 
-            {/* Section Projects */}
+            {/* Projects Section */}
             <div className="space-y-0.5">
               <div className="px-2 pb-1 text-[11.5px] font-normal text-[#7a7c78]">
                 Projects
@@ -516,12 +437,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               })}
             </div>
 
-            {/* Séparateur sobre & pro */}
+            {/* Subtle divider */}
             <div className="my-1 px-1">
               <div className="h-px bg-[#282a26]" />
             </div>
 
-            {/* Section Shortcuts & Feedback */}
+            {/* Shortcuts & Feedback Section */}
             <div className="space-y-0.5">
               {['Shortcuts', 'Provide Feedback'].map((item) => {
                 const isActive = activeTab === item

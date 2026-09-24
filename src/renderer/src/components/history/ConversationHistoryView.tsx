@@ -2,70 +2,9 @@ import React, { useState } from 'react'
 import { Search, SlidersHorizontal, Folder } from 'lucide-react'
 import { HistoryFilterMenu } from './HistoryFilterMenu'
 import { HistoryMoreOptionsMenu } from './HistoryMoreOptionsMenu'
+import { HistoryEntry, DEFAULT_HISTORY } from '../../mocks'
 
-export interface HistoryEntry {
-  id: string
-  title: string
-  projectName: string
-  time: string
-}
-
-const DEFAULT_HISTORY: HistoryEntry[] = [
-  {
-    id: '1',
-    title: "Je veux créer une application desktop inspirée de l'interface d'Antigravity Desktop 2.0.",
-    projectName: 'desktop-llm',
-    time: 'now'
-  },
-  {
-    id: '2',
-    title: "je veux corriger mon outile ppour qu'il fonctionne aussi sur la desniere version de kali lin...",
-    projectName: 'SmoothTerminal',
-    time: '21h'
-  },
-  {
-    id: '3',
-    title: 'Analyses CLI',
-    projectName: 'test-box',
-    time: '3d'
-  },
-  {
-    id: '4',
-    title: 'Refonte Landing Page Et Header',
-    projectName: 'CareerLensWeb',
-    time: '4d'
-  },
-  {
-    id: '5',
-    title: 'Website',
-    projectName: 'test-box',
-    time: '5d'
-  },
-  {
-    id: '6',
-    title: 'app mobile',
-    projectName: 'test-box',
-    time: '5d'
-  },
-  {
-    id: '7',
-    title: 'Optimiser Son Portfolio',
-    projectName: 'MyPortfolio',
-    time: '7d'
-  },
-  {
-    id: '8',
-    title: 'Generate README',
-    projectName: 'test-box',
-    time: '7d'
-  },
-  {
-    id: '9',
-    title: 'PDL-AI Technical Project Description',
-    projectName: 'PC-PDL',
-    time: '13d'
-  }
-]
+export type { HistoryEntry }
 
 interface ConversationHistoryViewProps {
   onSelectConversation?: (entry: HistoryEntry) => void

@@ -9,7 +9,7 @@ export function createMainWindow(): BrowserWindow {
     minHeight: 600,
     icon: join(__dirname, '../../resources/myicon.png'),
     show: false,
-    frame: false,          // Supprime la barre native Windows — on gère notre propre titlebar
+    frame: false,          // Remove native Windows title bar - we use custom TitleBar
     autoHideMenuBar: true,
     backgroundColor: '#141414',
     webPreferences: {
@@ -20,18 +20,18 @@ export function createMainWindow(): BrowserWindow {
     }
   })
 
-  // Afficher la fenêtre uniquement quand elle est prête pour éviter un flash blanc
+  // Show window only when ready to prevent white flash
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
 
-  // Ouvrir les liens web externes dans le navigateur par défaut de l'OS
+  // Open external web links in OS default browser
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
 
-  // Chargement de l'URL Vite en dev ou du fichier html en production
+  // Load Vite dev server URL in development or static index.html in production
   if (process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {

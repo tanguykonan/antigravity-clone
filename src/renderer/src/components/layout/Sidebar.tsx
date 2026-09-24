@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [openProjectOptionsId, setOpenProjectOptionsId] = useState<string | null>(null)
   const [openConvOptionsId, setOpenConvOptionsId] = useState<string | null>(null)
   const [expandedProjectIds, setExpandedProjectIds] = useState<Set<string>>(
-    new Set(['desktop-llm', 'SmoothTerminal'])
+    new Set(['project1', 'project2'])
   )
   const [dragState, setDragState] = useState<DragState | null>(null)
 
@@ -110,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           document.body.style.cursor = 'grabbing'
           document.body.style.userSelect = 'none'
 
-          // Mesure unique des positions de tous les projets au démarrage du drag (0 layout thrashing pendant le mouvement)
+          // One-time measurement of all project items at drag start (0 layout thrashing during movement)
           cachedRects.current = projects
             .map((p) => {
               const el = itemRefs.current[p.id]
@@ -127,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })
         }
 
-        // Déplacement direct GPU (120 FPS) sans re-render React du composant complet
+        // Direct GPU transform (120 FPS) without full React re-renders
         if (floatingRef.current) {
           floatingRef.current.style.transform = `translate3d(${moveEvent.clientX + 14}px, ${moveEvent.clientY - 16}px, 0) rotate(2deg) scale(1.02)`
         }
@@ -156,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }
         }
 
-        // Re-render React UNIQUEMENT lorsque la case cible change (réduit de 120 renders/sec à 1 render)
+        // React re-render ONLY when target slot changes (reduces renders from 120/sec to 1 render)
         if (
           foundTargetId !== lastTargetRef.current.id ||
           foundPos !== lastTargetRef.current.pos
@@ -222,17 +222,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
       }}
     >
-      {/* ── Mini header : Logo A + Panel icon + Nav arrows ── */}
+      {/* Header bar: Logo + Panel toggle + Navigation buttons */}
       <div
         className="flex items-center gap-1 px-2 flex-shrink-0"
         style={{ height: 38 }}
       >
-        {/* Logo App */}
+        {/* App Logo */}
         <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
           <img src={appLogo} alt="App Logo" className="w-[18px] h-[18px] object-contain rounded-sm" />
         </div>
 
-        {/* Panel toggle — pas de pill permanent, effet hover & active clic */}
+        {/* Panel toggle */}
         <button
           onClick={onToggleSidebar}
           className="w-7 h-7 flex items-center justify-center rounded transition-colors text-[#7a7c78] hover:text-[#c5c7c2] hover:bg-[#252723] active:bg-white/10 active:scale-95 cursor-pointer"
@@ -638,7 +638,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               ) : null}
 
-              {/* Ligne d'insertion en-dessous (style macOS Finder avec rond indicateur) */}
+              {/* Drop insertion line indicator */}
               {showLineBelow && (
                 <div className="flex items-center my-0.5 px-0.5 pointer-events-none animate-in fade-in duration-100">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#007aff] shadow-[0_0_8px_rgba(0,122,255,1)] flex-shrink-0" />
@@ -650,7 +650,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Flèche du bas ▼ centrée exactement sur la colonne de 10px de la scrollbar */}
+      {/* Bottom arrow scrollbar alignment indicator */}
       <div className="flex justify-end pr-0 py-0.5 flex-shrink-0">
         <div className="w-[10px] flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity">
           <svg width="7" height="5" viewBox="0 0 7 5" fill="none">
@@ -659,7 +659,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* ── Settings (au bas de la sidebar — style Antigravity authentique avec badge au hover) ── */}
+      {/* Settings button with hover shortcut badge */}
       <div className="p-2 flex-shrink-0">
         <button
           type="button"
@@ -690,14 +690,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="whitespace-nowrap truncate">Settings</span>
           </div>
 
-          {/* Badge raccourci clavier qui apparaît au hover */}
+          {/* Shortcut badge visible on hover */}
           <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-[10.5px] font-mono text-[#8a8c87] px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.06] flex-shrink-0">
             Ctrl+,
           </span>
         </button>
       </div>
 
-      {/* ── Badge flottant ultra-fluide suivant le curseur pendant le drag (style macOS) ── */}
+      {/* Floating drag preview badge */}
       {dragState && draggedProjectItem && (
         <div
           ref={floatingRef}

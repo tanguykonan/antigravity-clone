@@ -60,7 +60,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Fermer le menu si on clique ailleurs
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -76,13 +76,13 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
   }
 
   const handleMenuEnter = (label: string) => {
-    // Si un menu est déjà ouvert, changer au survol
+    // If a menu is already open, switch on hover
     if (openMenu) setOpenMenu(label)
   }
 
   const handleItemClick = (item: MenuItemDef) => {
     if (item.separator || item.disabled) return
-    // Actions spéciales
+    // Special actions
     if (item.label === 'Command Palette') onOpenCommandPalette?.()
     if (item.label === 'Quit Progravity') electronService.close()
     if (item.label === 'Minimize') electronService.minimize()
@@ -95,7 +95,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
     <div
       className="titlebar-drag h-9 flex items-center bg-bg-sidebar select-none flex-shrink-0"
     >
-      {/* Menu bar — style macOS (pills arrondies, typographie SF Pro, menu app en gras) */}
+      {/* Menu bar with native app style */}
       <div
         ref={menuRef}
         className="titlebar-no-drag flex items-center h-full pl-2.5 gap-0.5 relative z-50"
@@ -132,7 +132,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
                 {menu.label}
               </button>
 
-              {/* Dropdown menu style macOS (effet verre dépoli, survol bleu macOS) */}
+              {/* Dropdown menu */}
               {isOpen && menu.items && (
                 <div
                   className="absolute top-[calc(100%+3px)] left-0 py-1.5 min-w-[210px] rounded-lg shadow-[0_12px_32px_rgba(0,0,0,0.55)] backdrop-blur-xl z-50"
@@ -185,10 +185,10 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
         })}
       </div>
 
-      {/* Zone draggable centrale */}
+      {/* Central draggable area */}
       <div className="flex-1 h-full" />
 
-      {/* Bouton Github Repository compact */}
+      {/* GitHub Repository button */}
       <div className="titlebar-no-drag flex items-center pr-2.5">
         <button
           onClick={() => window.open('https://github.com', '_blank')}
@@ -201,7 +201,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
           }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2c2e29')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#242622')}
-          data-tooltip="Ouvrir le dépôt GitHub"
+          data-tooltip="Open GitHub Repository"
           data-tooltip-side="bottom"
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="#e2e4df">
@@ -215,16 +215,16 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
         </button>
       </div>
 
-      {/* Window controls — style macOS rouge / jaune / vert (taille agrandie 14px) */}
+      {/* Window controls (Close, Minimize, Maximize) */}
       <div className="titlebar-no-drag flex items-center h-full pr-4 pl-1">
         {electronService.isElectron() && (
           <div className="flex items-center gap-2.5 group">
-            {/* Rouge - Fermer */}
+            {/* Red - Close */}
             <button
               onClick={() => electronService.close()}
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#ff5f56', border: '1px solid rgba(0,0,0,0.2)' }}
-              data-tooltip="Fermer"
+              data-tooltip="Close"
               data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -233,12 +233,12 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               </svg>
             </button>
 
-            {/* Jaune - Réduire */}
+            {/* Yellow - Minimize */}
             <button
               onClick={() => electronService.minimize()}
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#ffbd2e', border: '1px solid rgba(0,0,0,0.2)' }}
-              data-tooltip="Réduire"
+              data-tooltip="Minimize"
               data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -246,12 +246,12 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenCommandPalette }) => {
               </svg>
             </button>
 
-            {/* Vert - Agrandir */}
+            {/* Green - Maximize */}
             <button
               onClick={() => electronService.maximize()}
               className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer hover:brightness-110 active:brightness-90"
               style={{ backgroundColor: '#27c93f', border: '1px solid rgba(0,0,0,0.2)' }}
-              data-tooltip="Agrandir"
+              data-tooltip="Maximize"
               data-tooltip-side="bottom"
             >
               <svg width="7" height="7" viewBox="0 0 7 7" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="opacity-0 group-hover:opacity-100 transition-opacity">

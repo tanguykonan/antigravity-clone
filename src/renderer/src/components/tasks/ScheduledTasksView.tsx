@@ -4,6 +4,7 @@ import { Project } from '../layout/Sidebar'
 import { NewScheduledTaskModal, ScheduledTask } from './NewScheduledTaskModal'
 import { ScheduledTaskOptionsMenu } from './ScheduledTaskOptionsMenu'
 import { ScheduledTaskDetailView } from './ScheduledTaskDetailView'
+import { DEFAULT_SCHEDULED_TASKS } from '../../mocks'
 
 interface ScheduledTasksViewProps {
   projects?: Project[]
@@ -12,7 +13,7 @@ interface ScheduledTasksViewProps {
 export const ScheduledTasksView: React.FC<ScheduledTasksViewProps> = ({
   projects = []
 }) => {
-  const [tasks, setTasks] = useState<ScheduledTask[]>([])
+  const [tasks, setTasks] = useState<ScheduledTask[]>(DEFAULT_SCHEDULED_TASKS)
   const [searchQuery, setSearchQuery] = useState('')
   const [isNewModalOpen, setIsNewModalOpen] = useState(false)
   const [openOptionsId, setOpenOptionsId] = useState<string | null>(null)

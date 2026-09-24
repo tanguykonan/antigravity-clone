@@ -1,8 +1,8 @@
 import { SystemInfo } from '@shared/types/system'
 
 /**
- * Service d'accès aux fonctionnalités Electron sécurisées.
- * Assure un découplage propre entre les composants React et l'API Electron globale.
+ * Service providing secure access to Electron capabilities.
+ * Ensures clean decoupling between React components and global Electron APIs.
  */
 class ElectronService {
   private get api() {

@@ -29,7 +29,7 @@ export const ConversationOptionsMenu: React.FC<ConversationOptionsMenuProps> = (
       let left = rect.right + 6
       let top = rect.top - 4
 
-      // Ajustement pour ne pas déborder de l'écran
+      // Prevent menu from overflowing viewport bounds
       if (left + 175 > window.innerWidth - 10) {
         left = rect.left - 175 - 6
       }

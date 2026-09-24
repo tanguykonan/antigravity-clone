@@ -21,9 +21,9 @@ interface ChatInputProps {
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
-  projectName = 'desktop-llm',
+  projectName = 'project1',
   projects = [],
-  selectedProjectId = 'desktop-llm',
+  selectedProjectId = 'project1',
   onSelectProject = () => {},
   onCreateProject,
   hasActiveConversation = false,
@@ -80,7 +80,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   }
 
-  const currentProjectName = projectName || 'desktop-llm'
+  const currentProjectName = projectName || 'project1'
 
   return (
     <div

@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Antigravity Desktop 2.0 inspired desktop application with Electron, React, Vite, and Tailwind CSS",
   "main": "./out/main/index.js",
-  "author": "developer",
+  "author": "Ulrich Tanguy",
+  "license": "MIT",
   "scripts": {
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",

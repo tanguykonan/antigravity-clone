@@ -10,52 +10,20 @@ import { CommandPalette } from './components/palette/CommandPalette'
 import { TooltipProvider } from './components/ui/Tooltip'
 import { OnboardingView } from './components/auth/OnboardingView'
 import { SettingsModal } from './components/settings/SettingsModal'
+import { INITIAL_PROJECTS } from './mocks'
 
 const SIDEBAR_MIN_WIDTH = 270
 const SIDEBAR_MAX_WIDTH = 460
 const SIDEBAR_DEFAULT_WIDTH = 285
-
-const INITIAL_PROJECTS: Project[] = [
-  {
-    id: 'desktop-llm',
-    name: 'desktop-llm',
-    conversations: [
-      {
-        id: 'c-1',
-        title: "Je veux créer une application desktop inspirée de l'interface d'Antigr...",
-        time: 'now'
-      }
-    ]
-  },
-  {
-    id: 'SmoothTerminal',
-    name: 'SmoothTerminal',
-    conversations: [
-      {
-        id: 'c-2',
-        title: 'je veux corriger mon outi...',
-        time: '19h'
-      }
-    ]
-  },
-  { id: 'test-box', name: 'test-box', conversations: [] },
-  { id: 'CareerLensWeb', name: 'CareerLensWeb', conversations: [] },
-  { id: 'MyPortfolio', name: 'MyPortfolio', conversations: [] },
-  { id: 'PC-PDL', name: 'PC-PDL', conversations: [] },
-  { id: 'chatbot_medical', name: 'chatbot_medical', conversations: [] },
-  { id: 'CareerLens', name: 'CareerLens', conversations: [] },
-  { id: 'ATSEngine', name: 'ATSEngine', conversations: [] },
-  { id: 'mobile-agent', name: 'mobile-agent', conversations: [] }
-]
 
 export const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     () => localStorage.getItem('desktop_llm_authenticated') === 'true'
   )
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS)
-  const [activeProjectId, setActiveProjectId] = useState<string | null>('desktop-llm')
-  const [lastSelectedProjectId, setLastSelectedProjectId] = useState<string>('desktop-llm')
-  const [activeConversationId, setActiveConversationId] = useState<string | null>('c-1')
+  const [activeProjectId, setActiveProjectId] = useState<string | null>('project1')
+  const [lastSelectedProjectId, setLastSelectedProjectId] = useState<string>('project1')
+  const [activeConversationId, setActiveConversationId] = useState<string | null>('c-1-1')
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'scheduled-tasks'>('chat')
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -77,14 +45,14 @@ export const App: React.FC = () => {
     )
   }, [])
 
-  // Option + New Conversation : réinitialise à un chat vide sans projet (rien dans le header)
+  // Option + New Conversation: reset to empty chat without project selection
   const handleNewConversation = () => {
     setActiveProjectId(null)
     setActiveConversationId(null)
     setActiveView('chat')
   }
 
-  // Sélection d'un projet uniquement (ne sélectionne pas forcément un chat)
+  // Select project only
   const handleSelectProject = (id: string) => {
     setActiveProjectId(id)
     setLastSelectedProjectId(id)
@@ -92,7 +60,7 @@ export const App: React.FC = () => {
     setActiveView('chat')
   }
 
-  // Sélection d'une conversation spécifique d'un projet
+  // Select a specific conversation in a project
   const handleSelectConversation = (projectId: string, conversationId: string) => {
     setActiveProjectId(projectId)
     setLastSelectedProjectId(projectId)
@@ -100,7 +68,7 @@ export const App: React.FC = () => {
     setActiveView('chat')
   }
 
-  // Création d'un nouveau chat dans un projet via le bouton (+)
+  // Create new chat inside a project via (+) button
   const handleCreateChatInProject = (projectId: string) => {
     const newConv = {
       id: `c-${Date.now()}`,
@@ -126,7 +94,7 @@ export const App: React.FC = () => {
     setActiveView('chat')
   }
 
-  // Création d'un nouveau projet
+  // Create a new project
   const handleCreateProject = () => {
     const newId = `project-${Date.now()}`
     const newProj: Project = {
@@ -140,7 +108,7 @@ export const App: React.FC = () => {
     setActiveConversationId(null)
   }
 
-  // Suppression d'une conversation
+  // Delete a conversation
   const handleDeleteConversation = (projectId: string, conversationId: string) => {
     setProjects((prev) =>
       prev.map((p) => {
@@ -158,7 +126,7 @@ export const App: React.FC = () => {
     }
   }
 
-  // Raccourcis globaux Ctrl+Shift+P (Command Palette) et Ctrl+, (Settings)
+  // Global shortcuts Ctrl+Shift+P (Command Palette) and Ctrl+, (Settings)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
@@ -176,7 +144,7 @@ export const App: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col h-screen w-screen bg-[#151613] text-text-primary overflow-hidden">
-        {/* Title bar pour contrôle fenêtre & déplacement */}
+        {/* Title bar for window control and dragging */}
         <TitleBar onOpenCommandPalette={() => {}} />
         <div className="flex-1 overflow-hidden">
           <OnboardingView
@@ -193,12 +161,12 @@ export const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-bg-base text-text-primary overflow-hidden">
-      {/* Title bar — STRICTEMENT INTACTE avec déclencheur Command Palette */}
+      {/* Title bar with Command Palette trigger */}
       <TitleBar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar animée avec glissement fluide (transition width macOS) */}
+        {/* Animated sidebar with smooth transition */}
         <div
           className="flex-shrink-0 flex overflow-hidden"
           style={{
@@ -229,9 +197,9 @@ export const App: React.FC = () => {
           {sidebarOpen && <ResizeHandle onResize={handleResize} />}
         </div>
 
-        {/* Main area — s'élargit en plein écran avec fluidité */}
+        {/* Main workspace area */}
         <main className="flex-1 flex flex-col bg-bg-base overflow-hidden">
-          {/* Header de travail : affiche le breadcrumb 'Projet / Titre' si sélectionné, sinon rien */}
+          {/* Workspace header breadcrumbs */}
           <WorkspaceHeader
             projectName={activeProject?.name}
             conversationTitle={activeConversation?.title}
@@ -264,9 +232,9 @@ export const App: React.FC = () => {
               />
             ) : (
               <ChatInput
-                projectName={displayProject?.name ?? 'desktop-llm'}
+                projectName={displayProject?.name ?? 'project1'}
                 projects={projects}
-                selectedProjectId={displayProject?.id ?? 'desktop-llm'}
+                selectedProjectId={displayProject?.id ?? 'project1'}
                 onSelectProject={handleSelectProject}
                 onCreateProject={handleCreateProject}
                 hasActiveConversation={Boolean(activeProjectId && activeConversationId)}
@@ -276,7 +244,7 @@ export const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Bulle flottante Command Palette — style macOS Spotlight centré */}
+      {/* Floating Spotlight Command Palette */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
@@ -285,7 +253,7 @@ export const App: React.FC = () => {
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* Modal Settings complet fidèle au design */}
+      {/* Full Settings Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -296,7 +264,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Tooltip macOS global (capsules verre dépoli) */}
+      {/* Global Tooltip Provider */}
       <TooltipProvider />
     </div>
   )

@@ -2,7 +2,7 @@ import { app, BrowserWindow } from 'electron'
 import { createMainWindow } from './windows/mainWindow'
 import { registerIpcHandlers } from './ipc'
 
-// Empêcher les lancements multiples de l'application
+// Prevent multiple instances of the application
 const gotTheLock = app.requestSingleInstanceLock()
 
 let mainWindow: BrowserWindow | null = null
@@ -22,7 +22,7 @@ if (!gotTheLock) {
     registerIpcHandlers(mainWindow)
 
     app.on('activate', () => {
-      // Sur macOS, recréer une fenêtre quand l'icône du dock est cliquée et qu'aucune fenêtre n'est ouverte
+      // On macOS, recreate a window when dock icon is clicked and no windows are open
       if (BrowserWindow.getAllWindows().length === 0) {
         mainWindow = createMainWindow()
         registerIpcHandlers(mainWindow)
@@ -31,7 +31,7 @@ if (!gotTheLock) {
   })
 
   app.on('window-all-closed', () => {
-    // Sur macOS, les applications restent généralement actives jusqu'à ce que l'utilisateur quitte explicitement avec Cmd + Q
+    // On macOS, applications typically stay active until the user explicitly quits with Cmd + Q
     if (process.platform !== 'darwin') {
       app.quit()
     }

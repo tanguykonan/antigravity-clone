@@ -38,7 +38,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
-  // Liste des commandes inspirée d'Antigravity / VS Code
+  // Available command items
   const commands: CommandItemDef[] = [
     {
       id: 'open-settings',
@@ -139,13 +139,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
   ]
 
-  // Filtrer les commandes selon la recherche
+  // Filter commands based on search input
   const filtered = commands.filter((cmd) =>
     cmd.label.toLowerCase().includes(search.toLowerCase()) ||
     (cmd.shortcut && cmd.shortcut.toLowerCase().includes(search.toLowerCase()))
   )
 
-  // Focus automatique à l'ouverture
+  // Auto-focus input on open
   useEffect(() => {
     if (isOpen) {
       setSearch('')
@@ -154,7 +154,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
   }, [isOpen])
 
-  // Navigation au clavier (Flèches, Entrée, Echap)
+  // Keyboard navigation (Arrow keys, Enter, Escape)
   useEffect(() => {
     if (!isOpen) return
 
@@ -180,7 +180,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, filtered, selectedIndex, onClose])
 
-  // Scroll automatique de l'élément sélectionné
+  // Scroll active item into view automatically
   useEffect(() => {
     if (listRef.current) {
       const selectedEl = listRef.current.children[selectedIndex] as HTMLElement

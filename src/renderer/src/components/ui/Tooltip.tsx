@@ -24,7 +24,7 @@ export const TooltipProvider: React.FC = () => {
     align: 'center'
   })
 
-  // ready = false tant que useLayoutEffect n'a pas corrigé la position
+  // ready = false until useLayoutEffect has adjusted position
   const [ready, setReady] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
 
@@ -49,7 +49,7 @@ export const TooltipProvider: React.FC = () => {
     const handlePointerMove = (e: PointerEvent) => {
       const target = (e.target as HTMLElement)?.closest('[data-tooltip]') as HTMLElement | null
 
-      // Si le curseur n'est plus sur un élément avec tooltip
+      // If cursor is no longer over an element with a tooltip
       if (!target) {
         if (activeTarget) {
           hide()
@@ -57,12 +57,12 @@ export const TooltipProvider: React.FC = () => {
         return
       }
 
-      // Si le curseur est toujours sur le même élément
+      // If cursor is still over the same element
       if (target === activeTarget) {
         return
       }
 
-      // Changement de cible
+      // Target changed
       activeTarget = target
       const content = target.getAttribute('data-tooltip')
       if (!content) {
@@ -134,7 +134,7 @@ export const TooltipProvider: React.FC = () => {
     }
   }, [])
 
-  // Auto-clamp : corrige la position avant l'affichage pour éviter tout débordement d'écran
+  // Auto-clamp: adjusts position before rendering to avoid viewport overflow
   useLayoutEffect(() => {
     if (tooltip.visible && tooltipRef.current) {
       const el = tooltipRef.current

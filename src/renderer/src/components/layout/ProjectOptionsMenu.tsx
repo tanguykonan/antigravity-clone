@@ -24,7 +24,7 @@ export const ProjectOptionsMenu: React.FC<ProjectOptionsMenuProps> = ({
       let left = rect.right + 6
       let top = rect.top - 4
 
-      // Empêcher tout débordement de fenêtre
+      // Prevent window bounds overflow
       if (left + 185 > window.innerWidth - 10) {
         left = rect.left - 185 - 6
       }

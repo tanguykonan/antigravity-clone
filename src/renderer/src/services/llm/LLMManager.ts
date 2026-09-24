@@ -64,7 +64,7 @@ class LLMManagerService {
     this.activeTierId = tierId
   }
 
-  // Renvoie les modèles d'un provider donné (dynamique pour Ollama, statique pour Cloud)
+  // Returns models for a given provider (dynamic for Ollama, static for Cloud)
   async getModelsForProvider(providerId: LLMProviderId): Promise<ProviderModelTier[]> {
     const provider = this.providers.get(providerId)
     if (!provider) return []
@@ -89,7 +89,7 @@ class LLMManagerService {
     return provider.models
   }
 
-  // Méthode unifiée send appelée par ChatInput
+  // Unified send stream method invoked by ChatInput
   async *send(messages: Message[], options: LLMOptions = {}): AsyncIterable<string> {
     const provider = this.getActiveProvider()
     yield* provider.send(messages, options)

@@ -25,7 +25,7 @@ export const AddContextDropdown: React.FC<AddContextDropdownProps> = ({
     const spaceBelow = window.innerHeight - anchorRect.bottom
     const spaceAbove = anchorRect.top
 
-    // Préférer en haut si peu d'espace en bas, ou en bas si suffisant
+    // Prefer opening upwards if not enough space below, or downwards if sufficient
     const placeAbove = spaceBelow < requiredHeight && spaceAbove >= requiredHeight
 
     const top = placeAbove

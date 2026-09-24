@@ -9,15 +9,7 @@
 
 Progravity Desktop UI is a frontend interface template replicating the design patterns of Google Antigravity Desktop. Built with Electron, React, TypeScript, Vite, and Tailwind CSS, it provides a high-fidelity desktop experience with dark theme aesthetics, custom window management, and smooth interactions.
 
-This repository serves as a standalone UI model and design showcase for developers looking to study or build desktop AI agent workspaces.
-
----
-
-## Preview
-
-<div align="center">
-  <video src=".github/demo/progravity.mp4" width="100%" controls="controls"></video>
-</div>
+This repository serves as a standalone UI model and design showcase for developers looking to study or build desktop AI agent workspaces. [Preview here](.github/demo/progravity.mp4) 
 
 ---
 
